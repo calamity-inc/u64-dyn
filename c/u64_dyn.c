@@ -186,7 +186,7 @@ bool unpack_i64_dyn_v2(const uint8_t* in_data, size_t in_size, int64_t* out_v, s
     int64_t v = (int64_t)u;
     if (neg)
     {
-        v = -v - 1;
+        v = ~v;
     }
     if (out_v)
     {
