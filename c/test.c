@@ -14,6 +14,7 @@ int main()
 {
     uint8_t data[9];
     size_t out_size;
+    errno = 0;
     {
         struct UPair pairs[] = {
             { 0, "\x00", 1 },
@@ -28,11 +29,9 @@ int main()
         {
             const struct UPair* pair = &pairs[i];
             //printf("%llu\n", pair->v);
-            errno = 0;
             assert(pack_u64_dyn_v2(data, pair->v) == pair->s);
             assert(errno == 0);
             assert(memcmp(data, pair->d, pair->s) == 0);
-            errno = 0;
             assert(unpack_u64_dyn_v2(data, pair->s, &out_size) == pair->v);
             assert(errno == 0);
         }
@@ -51,11 +50,9 @@ int main()
         {
             const struct UPair* pair = &pairs[i];
             //printf("%llu\n", pair->v);
-            errno = 0;
             assert(pack_u64_dyn(data, pair->v) == pair->s);
             assert(errno == 0);
             assert(memcmp(data, pair->d, pair->s) == 0);
-            errno = 0;
             assert(unpack_u64_dyn(data, pair->s, &out_size) == pair->v);
             assert(errno == 0);
         }
@@ -73,11 +70,9 @@ int main()
         for (size_t i = 0; i != COUNT(pairs); ++i)
         {
             const struct IPair* pair = &pairs[i];
-            errno = 0;
             assert(pack_i64_dyn(data, pair->v) == pair->s);
             assert(errno == 0);
             assert(memcmp(data, pair->d, pair->s) == 0);
-            errno = 0;
             assert(unpack_i64_dyn(data, pair->s, &out_size) == pair->v);
             assert(errno == 0);
         }
@@ -96,11 +91,9 @@ int main()
         {
             const struct IPair* pair = &pairs[i];
             //printf("%lli\n", pair->v);
-            errno = 0;
             assert(pack_i64_dyn_v2(data, pair->v) == pair->s);
             assert(errno == 0);
             assert(memcmp(data, pair->d, pair->s) == 0);
-            errno = 0;
             assert(unpack_i64_dyn_v2(data, pair->s, &out_size) == pair->v);
             assert(errno == 0);
         }
