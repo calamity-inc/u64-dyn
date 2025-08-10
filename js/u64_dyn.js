@@ -148,7 +148,6 @@ module.exports = {
 };
 
 if (require.main === module) {
-  // Basic tests similar to other implementations
   const casesU64 = new Map([
     [0n, [0x00]],
     [0x7fn, [0x7f]],
@@ -213,4 +212,3 @@ if (require.main === module) {
     console.assert(value === BigInt.asIntN(64, val) && off === enc.length, 'unpack_i64_dyn_v2 mismatch', val);
   }
 }
-

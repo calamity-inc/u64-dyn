@@ -1,7 +1,7 @@
 {
   "name": "u64-dyn",
   "version": "0.1.0",
-  "description": "Variable-length encoding for 64-bit integers",
+  "description": "Variable-length 64-bit integer codings that take at most 9 bytes.",
   "main": "u64_dyn.js",
   "types": "u64_dyn.d.ts"
 }
