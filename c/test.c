@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <string.h> // memcmp
+#include <errno.h>
 //#include <stdio.h>
 
 struct UPair { uint64_t v; const char* d; size_t s; };
@@ -87,6 +88,32 @@ int main()
             assert(memcmp(data, pair->d, pair->s) == 0);
             assert(unpack_i64_dyn_v2(data, pair->s, &out_size) == pair->v);
         }
+    }
+    {
+        uint8_t incomplete[] = { 0x80 };
+        errno = 0;
+        out_size = 123;
+        assert(unpack_u64_dyn(incomplete, 1, &out_size) == 0);
+        assert(errno == EINVAL);
+        assert(out_size == 0);
+
+        errno = 0;
+        out_size = 123;
+        assert(unpack_u64_dyn_v2(incomplete, 1, &out_size) == 0);
+        assert(errno == EINVAL);
+        assert(out_size == 0);
+
+        errno = 0;
+        out_size = 123;
+        assert(unpack_i64_dyn(incomplete, 1, &out_size) == 0);
+        assert(errno == EINVAL);
+        assert(out_size == 0);
+
+        errno = 0;
+        out_size = 123;
+        assert(unpack_i64_dyn_v2(incomplete, 1, &out_size) == 0);
+        assert(errno == EINVAL);
+        assert(out_size == 0);
     }
     return 0;
 }

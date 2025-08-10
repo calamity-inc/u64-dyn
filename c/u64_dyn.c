@@ -1,4 +1,5 @@
 #include "u64_dyn.h"
+#include <errno.h>
 
 size_t pack_u64_dyn(uint8_t out[9], uint64_t v)
 {
@@ -26,12 +27,22 @@ size_t pack_u64_dyn(uint8_t out[9], uint64_t v)
 
 uint64_t unpack_u64_dyn(const uint8_t* in_data, size_t in_size, size_t* out_size)
 {
+    if (in_size == 0)
+    {
+        errno = EINVAL;
+        if (out_size)
+        {
+            *out_size = 0;
+        }
+        return 0;
+    }
     uint64_t v = 0;
     int bits = 0;
     size_t used = 0;
+    uint8_t b = 0;
     while (used < in_size && used < 8)
     {
-        uint8_t b = in_data[used++];
+        b = in_data[used++];
         v += (uint64_t)(b & 0x7f) << bits;
         if ((b & 0x80) == 0)
         {
@@ -41,8 +52,17 @@ uint64_t unpack_u64_dyn(const uint8_t* in_data, size_t in_size, size_t* out_size
     }
     if (used < in_size)
     {
-        uint8_t b = in_data[used++];
+        b = in_data[used++];
         v += (uint64_t)b << 56;
+    }
+    else if ((b & 0x80) != 0)
+    {
+        errno = EINVAL;
+        if (out_size)
+        {
+            *out_size = 0;
+        }
+        return 0;
     }
   done:
     if (out_size)
@@ -79,12 +99,22 @@ size_t pack_u64_dyn_v2(uint8_t out[9], uint64_t v)
 
 uint64_t unpack_u64_dyn_v2(const uint8_t* in_data, size_t in_size, size_t* out_size)
 {
+    if (in_size == 0)
+    {
+        errno = EINVAL;
+        if (out_size)
+        {
+            *out_size = 0;
+        }
+        return 0;
+    }
     uint64_t v = 0;
     int bits = 0;
     size_t used = 0;
+    uint8_t b = 0;
     while (used < in_size && used < 8)
     {
-        uint8_t b = in_data[used++];
+        b = in_data[used++];
         v += (uint64_t)(b & 0x7f) << bits;
         if ((b & 0x80) == 0)
         {
@@ -95,8 +125,17 @@ uint64_t unpack_u64_dyn_v2(const uint8_t* in_data, size_t in_size, size_t* out_s
     }
     if (used < in_size)
     {
-        uint8_t b = in_data[used++];
+        b = in_data[used++];
         v += (uint64_t)b << 56;
+    }
+    else if ((b & 0x80) != 0)
+    {
+        errno = EINVAL;
+        if (out_size)
+        {
+            *out_size = 0;
+        }
+        return 0;
     }
   done:
     if (out_size)
