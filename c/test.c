@@ -33,6 +33,25 @@ int main()
         }
     }
     {
+        struct UPair pairs[] = {
+            { 0, "\x00", 1 },
+            { 0x7f, "\x7F", 1 },
+            { 0x80, "\x80\x01", 2 },
+            { 1337, "\xB9\x0A", 2 },
+            { 42069, "\xD5\xC8\x02", 3 },
+            { 0xffffffffffffffff, "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF", 9 },
+            { 0x8000000000000000, "\x80\x80\x80\x80\x80\x80\x80\x80\x80", 9 },
+        };
+        for (size_t i = 0; i != COUNT(pairs); ++i)
+        {
+            const struct UPair* pair = &pairs[i];
+            //printf("%llu\n", pair->v);
+            assert(pack_u64_dyn(data, pair->v) == pair->s);
+            assert(memcmp(data, pair->d, pair->s) == 0);
+            assert(unpack_u64_dyn(data, pair->s, &out_size) == pair->v);
+        }
+    }
+    {
         struct IPair pairs[] = {
             { 0, "\x00", 1 },
             { 0x7f, "\xBF\x00", 2 },

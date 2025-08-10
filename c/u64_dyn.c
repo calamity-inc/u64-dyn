@@ -1,5 +1,57 @@
 #include "u64_dyn.h"
 
+size_t pack_u64_dyn(uint8_t out[9], uint64_t v)
+{
+    size_t i = 0;
+    while (i != 8)
+    {
+        const uint8_t cur = v & 0x7f;
+        v >>= 7;
+        if (v != 0)
+        {
+            out[i++] = cur | 0x80;
+        }
+        else
+        {
+            out[i++] = cur;
+            return i;
+        }
+    }
+    if (v != 0)
+    {
+        out[i++] = v;
+    }
+    return i;
+}
+
+uint64_t unpack_u64_dyn(const uint8_t* in_data, size_t in_size, size_t* out_size)
+{
+    uint64_t v = 0;
+    int bits = 0;
+    size_t used = 0;
+    while (used < in_size && used < 8)
+    {
+        uint8_t b = in_data[used++];
+        v += (uint64_t)(b & 0x7f) << bits;
+        if ((b & 0x80) == 0)
+        {
+            goto done;
+        }
+        bits += 7;
+    }
+    if (used < in_size)
+    {
+        uint8_t b = in_data[used++];
+        v += (uint64_t)b << 56;
+    }
+  done:
+    if (out_size)
+    {
+        *out_size = used;
+    }
+    return v;
+}
+
 size_t pack_u64_dyn_v2(uint8_t out[9], uint64_t v)
 {
     size_t i = 0;
@@ -39,7 +91,7 @@ uint64_t unpack_u64_dyn_v2(const uint8_t* in_data, size_t in_size, size_t* out_s
             goto done;
         }
         bits += 7;
-        v += (uint64_t)1 << bits;
+        v += (uint64_t)1 << bits; // v2
     }
     if (used < in_size)
     {
