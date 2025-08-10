@@ -83,7 +83,16 @@ function expectThrow(fn, msg) {
   console.assert(threw, msg);
 }
 
-expectThrow(() => unpack_u64_dyn(Uint8Array.from([0x80])), 'unpack_u64_dyn should throw on insufficient data');
-expectThrow(() => unpack_u64_dyn_v2(Uint8Array.from([0x80])), 'unpack_u64_dyn_v2 should throw on insufficient data');
-expectThrow(() => unpack_i64_dyn(Uint8Array.from([0x80])), 'unpack_i64_dyn should throw on insufficient data');
-expectThrow(() => unpack_i64_dyn_v2(Uint8Array.from([0x80])), 'unpack_i64_dyn_v2 should throw on insufficient data');
+const truncatedCases = [
+  [],
+  [0x80],
+  [0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80]
+];
+
+for (const enc of truncatedCases) {
+  const buf = Uint8Array.from(enc);
+  expectThrow(() => unpack_u64_dyn(buf), 'unpack_u64_dyn should throw on insufficient data');
+  expectThrow(() => unpack_i64_dyn(buf), 'unpack_i64_dyn should throw on insufficient data');
+  expectThrow(() => unpack_i64_dyn_v2(buf), 'unpack_i64_dyn_v2 should throw on insufficient data');
+  expectThrow(() => unpack_u64_dyn_v2(buf), 'unpack_u64_dyn_v2 should throw on insufficient data');
+}
