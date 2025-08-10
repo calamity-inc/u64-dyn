@@ -28,25 +28,40 @@ function pack_u64_dyn_v2($v)
     return $out;
 }
 
+function add64($a, $b)
+{
+    $mask = -1;
+    while ($b != 0)
+    {
+        $carry = ($a & $b) << 1;
+        $a = ($a ^ $b) & $mask;
+        $b = $carry & $mask;
+    }
+    return $a;
+}
+
 function unpack_u64_dyn_v2($str)
 {
-    $b = ord($str[0]);
-    $v = $b & 0x7f;
-    $i = 1;
-    $bits = 7;
-    $has_next = ($b >> 7) != 0;
-    while ($has_next)
+    $len = strlen($str);
+    $v = 0;
+    $bits = 0;
+    $i = 0;
+    while ($i < $len && $i < 8)
     {
         $b = ord($str[$i]);
         $i++;
-        $has_next = false;
-        if ($bits < 56)
+        $v = add64($v, ($b & 0x7f) << $bits);
+        if (($b & 0x80) == 0)
         {
-            $has_next = ($b >> 7) != 0;
-            $b = $b & 0x7f;
+            return $v;
         }
-        $v |= (($b + 1) << $bits);
         $bits += 7;
+        $v = add64($v, 1 << $bits);
+    }
+    if ($i < $len)
+    {
+        $b = ord($str[$i]);
+        $v = add64($v, $b << 56);
     }
     return $v;
 }
@@ -57,7 +72,8 @@ $tests_u64 = [
     0x80 => "\x80\x00",
     1337 => "\xB9\x09",
     42069 => "\xD5\xC7\x01",
-    /*0xffffffffffffffff*/ -1 => "\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE\xFE",
+    -1 => "\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE\xFE",
+    -9223372036854775808 => "\x80\xFF\xFE\xFE\xFE\xFE\xFE\xFE\x7E",
 ];
 
 foreach ($tests_u64 as $val => $enc)
