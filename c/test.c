@@ -29,7 +29,9 @@ int main()
             //printf("%llu\n", pair->v);
             assert(pack_u64_dyn_v2(data, pair->v) == pair->s);
             assert(memcmp(data, pair->d, pair->s) == 0);
-            assert(unpack_u64_dyn_v2(data, pair->s, &out_size) == pair->v);
+            uint64_t out_v;
+            assert(unpack_u64_dyn_v2(data, pair->s, &out_v, &out_size));
+            assert(out_v == pair->v);
         }
     }
     {
@@ -48,7 +50,9 @@ int main()
             //printf("%llu\n", pair->v);
             assert(pack_u64_dyn(data, pair->v) == pair->s);
             assert(memcmp(data, pair->d, pair->s) == 0);
-            assert(unpack_u64_dyn(data, pair->s, &out_size) == pair->v);
+            uint64_t out_v;
+            assert(unpack_u64_dyn(data, pair->s, &out_v, &out_size));
+            assert(out_v == pair->v);
         }
     }
     {
@@ -66,7 +70,9 @@ int main()
             const struct IPair* pair = &pairs[i];
             assert(pack_i64_dyn(data, pair->v) == pair->s);
             assert(memcmp(data, pair->d, pair->s) == 0);
-            assert(unpack_i64_dyn(data, pair->s, &out_size) == pair->v);
+            int64_t out_v;
+            assert(unpack_i64_dyn(data, pair->s, &out_v, &out_size));
+            assert(out_v == pair->v);
         }
     }
     {
@@ -85,7 +91,28 @@ int main()
             //printf("%lli\n", pair->v);
             assert(pack_i64_dyn_v2(data, pair->v) == pair->s);
             assert(memcmp(data, pair->d, pair->s) == 0);
-            assert(unpack_i64_dyn_v2(data, pair->s, &out_size) == pair->v);
+            int64_t out_v;
+            assert(unpack_i64_dyn_v2(data, pair->s, &out_v, &out_size));
+            assert(out_v == pair->v);
+        }
+    }
+    {
+        const uint8_t bad1[] = { 0x80 };
+        const uint8_t bad2[] = { 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80 };
+        struct { const uint8_t* d; size_t s; } bads[] = {
+            { NULL, 0 },
+            { bad1, sizeof(bad1) },
+            { bad2, sizeof(bad2) },
+        };
+        for (size_t i = 0; i != COUNT(bads); ++i)
+        {
+            uint64_t u;
+            int64_t v;
+            size_t used;
+            assert(!unpack_u64_dyn(bads[i].d, bads[i].s, &u, &used));
+            assert(!unpack_i64_dyn(bads[i].d, bads[i].s, &v, &used));
+            assert(!unpack_i64_dyn_v2(bads[i].d, bads[i].s, &v, &used));
+            assert(!unpack_u64_dyn_v2(bads[i].d, bads[i].s, &u, &used));
         }
     }
     return 0;

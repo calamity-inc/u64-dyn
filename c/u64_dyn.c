@@ -24,32 +24,39 @@ size_t pack_u64_dyn(uint8_t out[9], uint64_t v)
     return i;
 }
 
-uint64_t unpack_u64_dyn(const uint8_t* in_data, size_t in_size, size_t* out_size)
+bool unpack_u64_dyn(const uint8_t* in_data, size_t in_size, uint64_t* out_v, size_t* out_size)
 {
     uint64_t v = 0;
     int bits = 0;
     size_t used = 0;
-    while (used < in_size && used < 8)
+    while (1)
     {
+        if (used >= in_size)
+        {
+            return false;
+        }
         uint8_t b = in_data[used++];
+        if (used == 9)
+        {
+            v += (uint64_t)b << bits;
+            break;
+        }
         v += (uint64_t)(b & 0x7f) << bits;
         if ((b & 0x80) == 0)
         {
-            goto done;
+            break;
         }
         bits += 7;
     }
-    if (used < in_size)
-    {
-        uint8_t b = in_data[used++];
-        v += (uint64_t)b << 56;
-    }
-  done:
     if (out_size)
     {
         *out_size = used;
     }
-    return v;
+    if (out_v)
+    {
+        *out_v = v;
+    }
+    return true;
 }
 
 size_t pack_u64_dyn_v2(uint8_t out[9], uint64_t v)
@@ -77,33 +84,40 @@ size_t pack_u64_dyn_v2(uint8_t out[9], uint64_t v)
     return i;
 }
 
-uint64_t unpack_u64_dyn_v2(const uint8_t* in_data, size_t in_size, size_t* out_size)
+bool unpack_u64_dyn_v2(const uint8_t* in_data, size_t in_size, uint64_t* out_v, size_t* out_size)
 {
     uint64_t v = 0;
     int bits = 0;
     size_t used = 0;
-    while (used < in_size && used < 8)
+    while (1)
     {
+        if (used >= in_size)
+        {
+            return false;
+        }
         uint8_t b = in_data[used++];
+        if (used == 9)
+        {
+            v += (uint64_t)b << bits;
+            break;
+        }
         v += (uint64_t)(b & 0x7f) << bits;
         if ((b & 0x80) == 0)
         {
-            goto done;
+            break;
         }
         bits += 7;
         v += (uint64_t)1 << bits; // v2
     }
-    if (used < in_size)
-    {
-        uint8_t b = in_data[used++];
-        v += (uint64_t)b << 56;
-    }
-  done:
     if (out_size)
     {
         *out_size = used;
     }
-    return v;
+    if (out_v)
+    {
+        *out_v = v;
+    }
+    return true;
 }
 
 size_t pack_i64_dyn(uint8_t out[9], int64_t v)
@@ -117,20 +131,36 @@ size_t pack_i64_dyn(uint8_t out[9], int64_t v)
     return pack_u64_dyn(out, (neg << 6) | ((u & ~0x3f) << 1) | (u & 0x3f));
 }
 
-int64_t unpack_i64_dyn(const uint8_t* in_data, size_t in_size, size_t* out_size)
+bool unpack_i64_dyn(const uint8_t* in_data, size_t in_size, int64_t* out_v, size_t* out_size)
 {
-    uint64_t u = unpack_u64_dyn(in_data, in_size, out_size);
-    const int neg = (u >> 6) & 1;
+    uint64_t u;
+    if (!unpack_u64_dyn(in_data, in_size, &u, out_size))
+    {
+        return false;
+    }
+    const bool neg = (u >> 6) & 1;
     u = ((u >> 1) & ~((uint64_t)0x3f)) | (u & 0x3f);
+    int64_t v;
     if (neg)
     {
         if (u == 0)
         {
-            return (int64_t)1 << 63;
+            v = (int64_t)1 << 63;
         }
-        return -(int64_t)u;
+        else
+        {
+            v = -(int64_t)u;
+        }
     }
-    return (int64_t)u;
+    else
+    {
+        v = (int64_t)u;
+    }
+    if (out_v)
+    {
+        *out_v = v;
+    }
+    return true;
 }
 
 size_t pack_i64_dyn_v2(uint8_t out[9], int64_t v)
@@ -144,9 +174,13 @@ size_t pack_i64_dyn_v2(uint8_t out[9], int64_t v)
     return pack_u64_dyn_v2(out, (neg << 6) | ((u & ~0x3fULL) << 1) | (u & 0x3fULL));
 }
 
-int64_t unpack_i64_dyn_v2(const uint8_t* in_data, size_t in_size, size_t* out_size)
+bool unpack_i64_dyn_v2(const uint8_t* in_data, size_t in_size, int64_t* out_v, size_t* out_size)
 {
-    uint64_t u = unpack_u64_dyn_v2(in_data, in_size, out_size);
+    uint64_t u;
+    if (!unpack_u64_dyn_v2(in_data, in_size, &u, out_size))
+    {
+        return false;
+    }
     const uint64_t neg = (u >> 6) & 1; // check bit 6
     u = ((u >> 1) & ~0x3fULL) | (u & 0x3fULL); // remove bit 6
     int64_t v = (int64_t)u;
@@ -154,5 +188,9 @@ int64_t unpack_i64_dyn_v2(const uint8_t* in_data, size_t in_size, size_t* out_si
     {
         v = -v - 1;
     }
-    return v;
+    if (out_v)
+    {
+        *out_v = v;
+    }
+    return true;
 }
