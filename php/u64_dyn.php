@@ -66,6 +66,34 @@ function unpack_u64_dyn_v2($str)
     return $v;
 }
 
+function pack_i64_dyn_v2($v)
+{
+    if (is_float($v))
+    {
+        throw new Exception("Cannot encode a float as i64");
+    }
+    $neg = ($v >> 63) & 1;
+    if ($v < 0)
+    {
+        $v = ~$v;
+    }
+    return pack_u64_dyn_v2(($neg << 6) | (($v & ~0x3f) << 1) | ($v & 0x3f));
+}
+
+function unpack_i64_dyn_v2($str)
+{
+    $v = unpack_u64_dyn_v2($str);
+    $neg = (($v >> 6) & 1) != 0;
+    $upper = $v & ~0x7f;
+    $upper = ($upper >> 1) & ~(-1 << 63);
+    $v = $upper | ($v & 0x3f);
+    if ($neg)
+    {
+        $v = ~$v;
+    }
+    return $v;
+}
+
 $tests_u64 = [
     0 => "\x00",
     0x7f => "\x7F",
@@ -80,4 +108,20 @@ foreach ($tests_u64 as $val => $enc)
 {
     assert(pack_u64_dyn_v2($val) == $enc);
     assert(unpack_u64_dyn_v2($enc) == $val);
+}
+
+$tests_i64 = [
+    0 => "\x00",
+    0x7f => "\xBF\x00",
+    0x80 => "\x80\x01",
+    1337 => "\xB9\x13",
+    42069 => "\x95\x90\x04",
+    -1 => "\x40",
+    -9223372036854775808 => "\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE\xFE",
+];
+
+foreach ($tests_i64 as $val => $enc)
+{
+    assert(pack_i64_dyn_v2($val) == $enc);
+    assert(unpack_i64_dyn_v2($enc) == $val);
 }
