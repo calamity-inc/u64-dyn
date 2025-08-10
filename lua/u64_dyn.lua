@@ -1,5 +1,3 @@
--- https://gist.github.com/Sainan/02c3ac9cea5015341412c92feec95e56
-
 function pack_u64_dyn(v)
     local out = {}
     for _ = 1, 8 do
