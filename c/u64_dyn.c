@@ -27,32 +27,44 @@ size_t pack_u64_dyn_v2(uint8_t out[9], uint64_t v)
 
 uint64_t unpack_u64_dyn_v2(const uint8_t* in_data, size_t in_size, size_t* out_size)
 {
-	uint64_t v = 0;
-	int bits = 0;
-	if (in_size)
-	{
-		uint8_t b = *in_data;
-		v = b & 0x7f;
-		int has_next = b >> 7;
-		bits += 7;
-		while (has_next && (++in_data, --in_size))
-		{
-			b = *in_data;
-			has_next = 0;
-			if (bits < 56)
-			{
-				has_next = *in_data >> 7;
-				b &= 0x7f;
-			}
-			v = v | ((b + 1) << bits);
-			bits += 7;
-		}
-	}
-	if (out_size)
-	{
-		*out_size = bits / 7;
-	}
-	return v;
+        uint64_t v = 0;
+        int bits = 0;
+        size_t used = 0;
+
+        /*
+         * This decoding mirrors the Lua reference implementation found in
+         * lua/u64_dyn.lua.  Each byte contributes seven value bits and, when
+         * the continuation flag (bit 7) is set, the encoded value is biased by
+         * 1 << bits (where bits is the number of value bits accumulated so
+         * far).  After eight bytes the ninth byte, if present, contributes the
+         * remaining eight bits without the bias/continuation flag.
+         */
+
+        /* Process at most eight bytes with continuation bits. */
+        while (used < in_size && used < 8)
+        {
+                uint8_t b = in_data[used++];
+                v += (uint64_t)(b & 0x7f) << bits;
+                if ((b & 0x80) == 0)
+                        goto done;
+                bits += 7;
+                v += (uint64_t)1 << bits; /* v2 bias */
+        }
+
+        /* If we consumed eight bytes and still have data, the ninth byte
+         * contributes the upper 8 bits directly. */
+        if (used < in_size)
+        {
+                uint8_t b = in_data[used++];
+                v += (uint64_t)b << 56;
+        }
+
+done:
+        if (out_size)
+        {
+                *out_size = used;
+        }
+        return v;
 }
 
 size_t pack_i64_dyn_v2(uint8_t out[9], int64_t v)

@@ -20,8 +20,8 @@ int main()
 			{ 0x80, "\x80\x00", 2 },
 			{ 1337, "\xB9\x09", 2 },
 			{ 42069, "\xD5\xC7\x01", 3 },
-			{ 0xffffffffffffffff, "\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE\xFE", 9 },
-			//{ 0x8000000000000000, "\x80\xFF\xFE\xFE\xFE\xFE\xFE\xFE\x7E", 9 },
+                        { 0xffffffffffffffff, "\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE\xFE", 9 },
+                        { 0x8000000000000000, "\x80\xFF\xFE\xFE\xFE\xFE\xFE\xFE\x7E", 9 },
 		};
 		for (size_t i = 0; i != COUNT(pairs); ++i)
 		{
