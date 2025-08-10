@@ -12,6 +12,7 @@ for val, enc in pairs({
     assert(pack_u64_dyn(val) == enc)
     assert(unpack_u64_dyn(enc) == val)
 end
+assert(not pcall(unpack_u64_dyn, "\x80"))
 
 for val, enc in pairs({
     [0] = "\x00",
@@ -25,6 +26,7 @@ for val, enc in pairs({
     assert(pack_i64_dyn(val) == enc)
     assert(unpack_i64_dyn(enc) == val)
 end
+assert(not pcall(unpack_i64_dyn, "\x80"))
 
 for val, enc in pairs({
     [0] = "\x00",
@@ -38,6 +40,7 @@ for val, enc in pairs({
     assert(pack_u64_dyn_v2(val) == enc)
     assert(unpack_u64_dyn_v2(enc) == val)
 end
+assert(not pcall(unpack_u64_dyn_v2, "\x80"))
 
 for val, enc in pairs({
     [0] = "\x00",
@@ -51,3 +54,4 @@ for val, enc in pairs({
     assert(pack_i64_dyn_v2(val) == enc)
     assert(unpack_i64_dyn_v2(enc) == val)
 end
+assert(not pcall(unpack_i64_dyn_v2, "\x80"))
