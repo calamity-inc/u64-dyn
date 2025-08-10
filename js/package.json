@@ -2,6 +2,10 @@
   "name": "u64-dyn",
   "version": "0.1.0",
   "description": "Variable-length 64-bit integer codings that take at most 9 bytes.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/calamity-inc/u64_dyn.git"
+  },
   "main": "u64_dyn.js",
   "types": "u64_dyn.d.ts",
   "scripts": {
