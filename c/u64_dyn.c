@@ -139,7 +139,7 @@ size_t pack_i64_dyn_v2(uint8_t out[9], int64_t v)
     uint64_t neg = (v >> 63);
     if (neg)
     {
-        u = (v * -1) - 1;
+        u = ~v;
     }
     else
     {
@@ -156,7 +156,7 @@ int64_t unpack_i64_dyn_v2(const uint8_t* in_data, size_t in_size, size_t* out_si
     int64_t v;
     if (neg)
     {
-        v = (u * -1) - 1;
+        v = ~u;
     }
     else
     {
