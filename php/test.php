@@ -55,26 +55,31 @@ foreach ($tests_i64 as $val => $enc)
     assert($offset == strlen($enc));
 }
 
-try {
-    $offset = 0;
-    unpack_u64_dyn("\x80", $offset);
-    assert(false);
-} catch (Exception $e) {}
+$incomplete = [ "", "\x80", "\x80\x80\x80\x80\x80\x80\x80\x80" ];
 
-try {
-    $offset = 0;
-    unpack_u64_dyn(str_repeat("\x80", 8), $offset);
-    assert(false);
-} catch (Exception $e) {}
+foreach ($incomplete as $enc)
+{
+    try {
+        $offset = 0;
+        unpack_u64_dyn($enc, $offset);
+        assert(false);
+    } catch (Exception $e) {}
 
-try {
-    $offset = 0;
-    unpack_u64_dyn_v2("\x80", $offset);
-    assert(false);
-} catch (Exception $e) {}
+    /*try {
+        $offset = 0;
+        unpack_i64_dyn($enc, $offset);
+        assert(false);
+    } catch (Exception $e) {}*/
 
-try {
-    $offset = 0;
-    unpack_u64_dyn_v2(str_repeat("\x80", 8), $offset);
-    assert(false);
-} catch (Exception $e) {}
+    try {
+        $offset = 0;
+        unpack_u64_dyn_v2($enc, $offset);
+        assert(false);
+    } catch (Exception $e) {}
+
+    try {
+        $offset = 0;
+        unpack_i64_dyn_v2($enc, $offset);
+        assert(false);
+    } catch (Exception $e) {}
+}
