@@ -39,6 +39,24 @@ foreach ($tests_u64 as $val => $enc)
 
 $tests_i64 = [
     0 => "\x00",
+    0x7f => "\xBF\x01",
+    0x80 => "\x80\x02",
+    1337 => "\xB9\x14",
+    42069 => "\x95\x91\x05",
+    -1 => "\x41",
+    PHP_INT_MIN => "\x40",
+];
+
+foreach ($tests_i64 as $val => $enc)
+{
+    assert(pack_i64_dyn($val) == $enc);
+    $offset = 0;
+    assert(unpack_i64_dyn($enc, $offset) == $val);
+    assert($offset == strlen($enc));
+}
+
+$tests_i64 = [
+    0 => "\x00",
     0x7f => "\xBF\x00",
     0x80 => "\x80\x01",
     1337 => "\xB9\x13",
