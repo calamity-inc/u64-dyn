@@ -72,8 +72,8 @@ $tests_u64 = [
     0x80 => "\x80\x00",
     1337 => "\xB9\x09",
     42069 => "\xD5\xC7\x01",
-    /*0xffffffffffffffff*/ -1 => "\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE\xFE",
-    /*0x8000000000000000*/ ((-1) << 63) => "\x80\xFF\xFE\xFE\xFE\xFE\xFE\xFE\x7E",
+    -1 => "\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE\xFE",
+    -9223372036854775808 => "\x80\xFF\xFE\xFE\xFE\xFE\xFE\xFE\x7E",
 ];
 
 foreach ($tests_u64 as $val => $enc)
