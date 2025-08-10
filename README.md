@@ -5,6 +5,7 @@ u64_dyn, i64_dyn, u64_dyn_v2, and i64_dyn_v2 are variable-length codings of 64-b
 - [C](c)
 - C++
     - [Soup](https://github.com/calamity-inc/Soup) has implementations for [reading](https://github.com/calamity-inc/Soup/blob/senpai/soup/Reader.cpp) and [writing](https://github.com/calamity-inc/Soup/blob/senpai/soup/Writer.cpp)
+- [JavaScript](js/u64_dyn.js)
 - [Lua](lua/u64_dyn.lua)
     - The [APM](https://github.com/PlutoLang/apm#readme) package for this can be found [here](https://gist.github.com/Sainan/02c3ac9cea5015341412c92feec95e56)
 - [PHP](php/u64_dyn.php)
