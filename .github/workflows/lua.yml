@@ -1,0 +1,13 @@
+name: Lua
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: debian-10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run tests
+        run: lua lua/u64_dyn.lua
