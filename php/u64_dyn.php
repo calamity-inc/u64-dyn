@@ -125,6 +125,46 @@ function unpack_u64_dyn_v2($str, &$offset = 0)
     return $v;
 }
 
+function pack_i64_dyn($v)
+{
+    if (is_float($v))
+    {
+        throw new Exception("Cannot encode a float as i64");
+    }
+    $neg = ($v >> 63) & 1;
+    if ($v < 0)
+    {
+        $u = add64(~$v, 1);
+        $u &= ~(-1 << 63);
+    }
+    else
+    {
+        $u = $v;
+    }
+    return pack_u64_dyn(($neg << 6) | (($u & ~0x3f) << 1) | ($u & 0x3f));
+}
+
+function unpack_i64_dyn($str, &$offset = 0)
+{
+    $v = unpack_u64_dyn($str, $offset);
+    $neg = (($v >> 6) & 1) != 0;
+    $upper = $v & ~0x7f;
+    $upper = ($upper >> 1) & ~(-1 << 63);
+    $v = $upper | ($v & 0x3f);
+    if ($neg)
+    {
+        if ($v == 0)
+        {
+            $v = PHP_INT_MIN;
+        }
+        else
+        {
+            $v = -$v;
+        }
+    }
+    return $v;
+}
+
 function pack_i64_dyn_v2($v)
 {
     if (is_float($v))
