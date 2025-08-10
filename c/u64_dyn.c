@@ -106,6 +106,33 @@ uint64_t unpack_u64_dyn_v2(const uint8_t* in_data, size_t in_size, size_t* out_s
     return v;
 }
 
+size_t pack_i64_dyn(uint8_t out[9], int64_t v)
+{
+    uint64_t u = (uint64_t)v;
+    uint64_t neg = (uint64_t)(v < 0);
+    if (neg)
+    {
+        u = (~u + 1) & ~((uint64_t)1 << 63);
+    }
+    return pack_u64_dyn(out, (neg << 6) | ((u & ~0x3f) << 1) | (u & 0x3f));
+}
+
+int64_t unpack_i64_dyn(const uint8_t* in_data, size_t in_size, size_t* out_size)
+{
+    uint64_t u = unpack_u64_dyn(in_data, in_size, out_size);
+    const int neg = (u >> 6) & 1;
+    u = ((u >> 1) & ~((uint64_t)0x3f)) | (u & 0x3f);
+    if (neg)
+    {
+        if (u == 0)
+        {
+            return (int64_t)1 << 63;
+        }
+        return -(int64_t)u;
+    }
+    return (int64_t)u;
+}
+
 size_t pack_i64_dyn_v2(uint8_t out[9], int64_t v)
 {
     uint64_t u;

@@ -54,6 +54,24 @@ int main()
     {
         struct IPair pairs[] = {
             { 0, "\x00", 1 },
+            { 0x7f, "\xBF\x01", 2 },
+            { 0x80, "\x80\x02", 2 },
+            { 1337, "\xB9\x14", 2 },
+            { 42069, "\x95\x91\x05", 3 },
+            { -1, "\x41", 1 },
+            { INT64_MIN, "\x40", 1 },
+        };
+        for (size_t i = 0; i != COUNT(pairs); ++i)
+        {
+            const struct IPair* pair = &pairs[i];
+            assert(pack_i64_dyn(data, pair->v) == pair->s);
+            assert(memcmp(data, pair->d, pair->s) == 0);
+            assert(unpack_i64_dyn(data, pair->s, &out_size) == pair->v);
+        }
+    }
+    {
+        struct IPair pairs[] = {
+            { 0, "\x00", 1 },
             { 0x7f, "\xBF\x00", 2 },
             { 0x80, "\x80\x01", 2 },
             { 1337, "\xB9\x13", 2 },
