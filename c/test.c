@@ -29,7 +29,9 @@ int main()
             //printf("%llu\n", pair->v);
             assert(pack_u64_dyn_v2(data, pair->v) == pair->s);
             assert(memcmp(data, pair->d, pair->s) == 0);
-            assert(unpack_u64_dyn_v2(data, pair->s, &out_size) == pair->v);
+            uint64_t v_out;
+            assert(unpack_u64_dyn_v2(data, pair->s, &v_out, &out_size));
+            assert(v_out == pair->v);
         }
     }
     {
@@ -48,7 +50,9 @@ int main()
             //printf("%llu\n", pair->v);
             assert(pack_u64_dyn(data, pair->v) == pair->s);
             assert(memcmp(data, pair->d, pair->s) == 0);
-            assert(unpack_u64_dyn(data, pair->s, &out_size) == pair->v);
+            uint64_t v_out;
+            assert(unpack_u64_dyn(data, pair->s, &v_out, &out_size));
+            assert(v_out == pair->v);
         }
     }
     {
@@ -66,7 +70,9 @@ int main()
             const struct IPair* pair = &pairs[i];
             assert(pack_i64_dyn(data, pair->v) == pair->s);
             assert(memcmp(data, pair->d, pair->s) == 0);
-            assert(unpack_i64_dyn(data, pair->s, &out_size) == pair->v);
+            int64_t v_out;
+            assert(unpack_i64_dyn(data, pair->s, &v_out, &out_size));
+            assert(v_out == pair->v);
         }
     }
     {
@@ -85,7 +91,9 @@ int main()
             //printf("%lli\n", pair->v);
             assert(pack_i64_dyn_v2(data, pair->v) == pair->s);
             assert(memcmp(data, pair->d, pair->s) == 0);
-            assert(unpack_i64_dyn_v2(data, pair->s, &out_size) == pair->v);
+            int64_t v_out;
+            assert(unpack_i64_dyn_v2(data, pair->s, &v_out, &out_size));
+            assert(v_out == pair->v);
         }
     }
     return 0;
