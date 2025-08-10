@@ -39,7 +39,7 @@ function pack_u64_dyn($v)
     return $out;
 }
 
-function unpack_u64_dyn(string $str, int &$offset = 0)
+function unpack_u64_dyn($str, &$offset = 0)
 {
     $len = strlen($str);
     $v = 0;
@@ -96,7 +96,7 @@ function pack_u64_dyn_v2($v)
     return $out;
 }
 
-function unpack_u64_dyn_v2(string $str, int &$offset = 0)
+function unpack_u64_dyn_v2($str, &$offset = 0)
 {
     $len = strlen($str);
     $v = 0;
@@ -139,7 +139,7 @@ function pack_i64_dyn_v2($v)
     return pack_u64_dyn_v2(($neg << 6) | (($v & ~0x3f) << 1) | ($v & 0x3f));
 }
 
-function unpack_i64_dyn_v2($str, int &$offset = 0)
+function unpack_i64_dyn_v2($str, &$offset = 0)
 {
     $v = unpack_u64_dyn_v2($str, $offset);
     $neg = (($v >> 6) & 1) != 0;
