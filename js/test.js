@@ -72,3 +72,18 @@ for (const [val, enc] of casesI64v2) {
   const [value, off] = unpack_i64_dyn_v2(Uint8Array.from(enc));
   console.assert(value === BigInt.asIntN(64, val) && off === enc.length, 'unpack_i64_dyn_v2 mismatch', val);
 }
+
+function expectThrow(fn, msg) {
+  let threw = false;
+  try {
+    fn();
+  } catch (e) {
+    threw = true;
+  }
+  console.assert(threw, msg);
+}
+
+expectThrow(() => unpack_u64_dyn(Uint8Array.from([0x80])), 'unpack_u64_dyn should throw on insufficient data');
+expectThrow(() => unpack_u64_dyn_v2(Uint8Array.from([0x80])), 'unpack_u64_dyn_v2 should throw on insufficient data');
+expectThrow(() => unpack_i64_dyn(Uint8Array.from([0x80])), 'unpack_i64_dyn should throw on insufficient data');
+expectThrow(() => unpack_i64_dyn_v2(Uint8Array.from([0x80])), 'unpack_i64_dyn_v2 should throw on insufficient data');
