@@ -1,0 +1,7 @@
+{
+  "name": "u64-dyn",
+  "version": "0.1.0",
+  "description": "Variable-length encoding for 64-bit integers",
+  "main": "u64_dyn.js",
+  "types": "u64_dyn.d.ts"
+}
