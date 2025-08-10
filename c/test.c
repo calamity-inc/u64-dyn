@@ -96,5 +96,24 @@ int main()
             assert(v_out == pair->v);
         }
     }
+    {
+        const uint8_t bad1[] = { 0x80 };
+        const uint8_t bad2[] = { 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80 };
+        struct { const uint8_t* d; size_t s; } bads[] = {
+            { NULL, 0 },
+            { bad1, sizeof(bad1) },
+            { bad2, sizeof(bad2) },
+        };
+        for (size_t i = 0; i != COUNT(bads); ++i)
+        {
+            uint64_t u;
+            int64_t v;
+            size_t used;
+            assert(!unpack_u64_dyn(bads[i].d, bads[i].s, &u, &used));
+            assert(!unpack_i64_dyn(bads[i].d, bads[i].s, &v, &used));
+            assert(!unpack_i64_dyn_v2(bads[i].d, bads[i].s, &v, &used));
+            assert(!unpack_u64_dyn_v2(bads[i].d, bads[i].s, &u, &used));
+        }
+    }
     return 0;
 }
