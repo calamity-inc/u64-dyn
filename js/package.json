@@ -9,6 +9,6 @@
   "main": "u64_dyn.js",
   "types": "u64_dyn.d.ts",
   "scripts": {
-    "test": "node u64_dyn.js"
+    "test": "node test.js"
   }
 }

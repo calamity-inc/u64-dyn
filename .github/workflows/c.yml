@@ -9,7 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build and run tests
-        run: |
-          gcc c/test.c c/u64_dyn.c -o c/test
-          ./c/test
+      - name: Build
+        working-directory: c
+        run: gcc test.c u64_dyn.c -o test
+      - name: Run tests
+        working-directory: c
+        run: ./test
