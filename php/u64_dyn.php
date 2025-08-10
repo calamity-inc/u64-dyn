@@ -39,23 +39,20 @@ function pack_u64_dyn($v)
     return $out;
 }
 
-function unpack_u64_dyn($str, &$read = null)
+function unpack_u64_dyn(string $str, int &$offset = 0)
 {
     $len = strlen($str);
     $v = 0;
     $bits = 0;
-    $i = 0;
-    while ($i < $len && $i < 8)
+    $i = $offset;
+    while ($i < $len && $i - $offset < 8)
     {
         $b = ord($str[$i]);
         $i++;
         $v = add64($v, ($b & 0x7f) << $bits);
         if (($b & 0x80) == 0)
         {
-            if ($read !== null)
-            {
-                $read = $i;
-            }
+            $offset = $i;
             return $v;
         }
         $bits += 7;
@@ -66,10 +63,7 @@ function unpack_u64_dyn($str, &$read = null)
         $v = add64($v, $b << 56);
         $i++;
     }
-    if ($read !== null)
-    {
-        $read = $i;
-    }
+    $offset = $i;
     return $v;
 }
 
@@ -102,23 +96,20 @@ function pack_u64_dyn_v2($v)
     return $out;
 }
 
-function unpack_u64_dyn_v2($str, &$read = null)
+function unpack_u64_dyn_v2(string $str, int &$offset = 0)
 {
     $len = strlen($str);
     $v = 0;
     $bits = 0;
-    $i = 0;
-    while ($i < $len && $i < 8)
+    $i = $offset;
+    while ($i < $len && $i - $offset < 8)
     {
         $b = ord($str[$i]);
         $i++;
         $v = add64($v, ($b & 0x7f) << $bits);
         if (($b & 0x80) == 0)
         {
-            if ($read !== null)
-            {
-                $read = $i;
-            }
+            $offset = $i;
             return $v;
         }
         $bits += 7;
@@ -130,10 +121,7 @@ function unpack_u64_dyn_v2($str, &$read = null)
         $v = add64($v, $b << 56);
         $i++;
     }
-    if ($read !== null)
-    {
-        $read = $i;
-    }
+    $offset = $i;
     return $v;
 }
 
@@ -151,9 +139,9 @@ function pack_i64_dyn_v2($v)
     return pack_u64_dyn_v2(($neg << 6) | (($v & ~0x3f) << 1) | ($v & 0x3f));
 }
 
-function unpack_i64_dyn_v2($str, &$read = null)
+function unpack_i64_dyn_v2($str, int &$offset = 0)
 {
-    $v = unpack_u64_dyn_v2($str, $read);
+    $v = unpack_u64_dyn_v2($str, $offset);
     $neg = (($v >> 6) & 1) != 0;
     $upper = $v & ~0x7f;
     $upper = ($upper >> 1) & ~(-1 << 63);
@@ -178,9 +166,9 @@ $tests_u64 = [
 foreach ($tests_u64 as $val => $enc)
 {
     assert(pack_u64_dyn($val) == $enc);
-    $read = 0;
-    assert(unpack_u64_dyn($enc, $read) == $val);
-    assert($read == strlen($enc));
+    $offset = 0;
+    assert(unpack_u64_dyn($enc, $offset) == $val);
+    assert($offset == strlen($enc));
 }
 
 $tests_u64 = [
@@ -196,9 +184,9 @@ $tests_u64 = [
 foreach ($tests_u64 as $val => $enc)
 {
     assert(pack_u64_dyn_v2($val) == $enc);
-    $read = 0;
-    assert(unpack_u64_dyn_v2($enc, $read) == $val);
-    assert($read == strlen($enc));
+    $offset = 0;
+    assert(unpack_u64_dyn_v2($enc, $offset) == $val);
+    assert($offset == strlen($enc));
 }
 
 $tests_i64 = [
@@ -214,7 +202,7 @@ $tests_i64 = [
 foreach ($tests_i64 as $val => $enc)
 {
     assert(pack_i64_dyn_v2($val) == $enc);
-    $read = 0;
-    assert(unpack_i64_dyn_v2($enc, $read) == $val);
-    assert($read == strlen($enc));
+    $offset = 0;
+    assert(unpack_i64_dyn_v2($enc, $offset) == $val);
+    assert($offset == strlen($enc));
 }
