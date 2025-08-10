@@ -40,7 +40,7 @@ function add64($a, $b)
     return $a;
 }
 
-function unpack_u64_dyn_v2($str)
+function unpack_u64_dyn_v2($str, &$read = null)
 {
     $len = strlen($str);
     $v = 0;
@@ -53,6 +53,10 @@ function unpack_u64_dyn_v2($str)
         $v = add64($v, ($b & 0x7f) << $bits);
         if (($b & 0x80) == 0)
         {
+            if ($read !== null)
+            {
+                $read = $i;
+            }
             return $v;
         }
         $bits += 7;
@@ -62,6 +66,11 @@ function unpack_u64_dyn_v2($str)
     {
         $b = ord($str[$i]);
         $v = add64($v, $b << 56);
+        $i++;
+    }
+    if ($read !== null)
+    {
+        $read = $i;
     }
     return $v;
 }
@@ -80,9 +89,9 @@ function pack_i64_dyn_v2($v)
     return pack_u64_dyn_v2(($neg << 6) | (($v & ~0x3f) << 1) | ($v & 0x3f));
 }
 
-function unpack_i64_dyn_v2($str)
+function unpack_i64_dyn_v2($str, &$read = null)
 {
-    $v = unpack_u64_dyn_v2($str);
+    $v = unpack_u64_dyn_v2($str, $read);
     $neg = (($v >> 6) & 1) != 0;
     $upper = $v & ~0x7f;
     $upper = ($upper >> 1) & ~(-1 << 63);
@@ -107,7 +116,9 @@ $tests_u64 = [
 foreach ($tests_u64 as $val => $enc)
 {
     assert(pack_u64_dyn_v2($val) == $enc);
-    assert(unpack_u64_dyn_v2($enc) == $val);
+    $read = 0;
+    assert(unpack_u64_dyn_v2($enc, $read) == $val);
+    assert($read == strlen($enc));
 }
 
 $tests_i64 = [
@@ -123,5 +134,7 @@ $tests_i64 = [
 foreach ($tests_i64 as $val => $enc)
 {
     assert(pack_i64_dyn_v2($val) == $enc);
-    assert(unpack_i64_dyn_v2($enc) == $val);
+    $read = 0;
+    assert(unpack_i64_dyn_v2($enc, $read) == $val);
+    assert($read == strlen($enc));
 }
