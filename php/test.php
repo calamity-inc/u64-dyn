@@ -54,3 +54,27 @@ foreach ($tests_i64 as $val => $enc)
     assert(unpack_i64_dyn_v2($enc, $offset) == $val);
     assert($offset == strlen($enc));
 }
+
+try {
+    $offset = 0;
+    unpack_u64_dyn("\x80", $offset);
+    assert(false);
+} catch (Exception $e) {}
+
+try {
+    $offset = 0;
+    unpack_u64_dyn(str_repeat("\x80", 8), $offset);
+    assert(false);
+} catch (Exception $e) {}
+
+try {
+    $offset = 0;
+    unpack_u64_dyn_v2("\x80", $offset);
+    assert(false);
+} catch (Exception $e) {}
+
+try {
+    $offset = 0;
+    unpack_u64_dyn_v2(str_repeat("\x80", 8), $offset);
+    assert(false);
+} catch (Exception $e) {}
