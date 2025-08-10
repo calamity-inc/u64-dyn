@@ -76,7 +76,7 @@ int main()
             { 0x80, "\x80\x01", 2 },
             { 1337, "\xB9\x13", 2 },
             { 42069, "\x95\x90\x04", 3 },
-            //{ -1, "\x40", 1 },
+            { -1, "\x40", 1 },
             { INT64_MIN, "\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE\xFE", 9 },
         };
         for (size_t i = 0; i != COUNT(pairs); ++i)
