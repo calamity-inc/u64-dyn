@@ -1,4 +1,78 @@
 <?php
+function add64($a, $b)
+{
+    $mask = -1;
+    while ($b != 0)
+    {
+        $carry = ($a & $b) << 1;
+        $a = ($a ^ $b) & $mask;
+        $b = $carry & $mask;
+    }
+    return $a;
+}
+
+function pack_u64_dyn($v)
+{
+    if (is_float($v))
+    {
+        throw new Exception("Cannot encode a float as u64");
+    }
+    $out = "";
+    for ($i = 0; $i != 8; ++$i)
+    {
+        $cur = $v & 0x7f;
+        $v >>= 7;
+        if ($v != 0)
+        {
+            $out .= chr($cur | 0x80);
+        }
+        else
+        {
+            $out .= chr($cur);
+            return $out;
+        }
+    }
+    if ($v != 0)
+    {
+        $out .= chr($v);
+    }
+    return $out;
+}
+
+function unpack_u64_dyn($str, &$read = null)
+{
+    $len = strlen($str);
+    $v = 0;
+    $bits = 0;
+    $i = 0;
+    while ($i < $len && $i < 8)
+    {
+        $b = ord($str[$i]);
+        $i++;
+        $v = add64($v, ($b & 0x7f) << $bits);
+        if (($b & 0x80) == 0)
+        {
+            if ($read !== null)
+            {
+                $read = $i;
+            }
+            return $v;
+        }
+        $bits += 7;
+    }
+    if ($i < $len)
+    {
+        $b = ord($str[$i]);
+        $v = add64($v, $b << 56);
+        $i++;
+    }
+    if ($read !== null)
+    {
+        $read = $i;
+    }
+    return $v;
+}
+
 function pack_u64_dyn_v2($v)
 {
     if (is_float($v))
@@ -28,18 +102,6 @@ function pack_u64_dyn_v2($v)
     return $out;
 }
 
-function add64($a, $b)
-{
-    $mask = -1;
-    while ($b != 0)
-    {
-        $carry = ($a & $b) << 1;
-        $a = ($a ^ $b) & $mask;
-        $b = $carry & $mask;
-    }
-    return $a;
-}
-
 function unpack_u64_dyn_v2($str, &$read = null)
 {
     $len = strlen($str);
@@ -60,7 +122,7 @@ function unpack_u64_dyn_v2($str, &$read = null)
             return $v;
         }
         $bits += 7;
-        $v = add64($v, 1 << $bits);
+        $v = add64($v, 1 << $bits); // v2
     }
     if ($i < $len)
     {
@@ -101,6 +163,24 @@ function unpack_i64_dyn_v2($str, &$read = null)
         $v = ~$v;
     }
     return $v;
+}
+
+$tests_u64 = [
+    0 => "\x00",
+    0x7f => "\x7F",
+    0x80 => "\x80\x01",
+    1337 => "\xB9\x0A",
+    42069 => "\xD5\xC8\x02",
+    -1 => "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+    -9223372036854775808 => "\x80\x80\x80\x80\x80\x80\x80\x80\x80",
+];
+
+foreach ($tests_u64 as $val => $enc)
+{
+    assert(pack_u64_dyn($val) == $enc);
+    $read = 0;
+    assert(unpack_u64_dyn($enc, $read) == $val);
+    assert($read == strlen($enc));
 }
 
 $tests_u64 = [
