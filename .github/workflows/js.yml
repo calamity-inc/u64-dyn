@@ -10,4 +10,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run tests
-        run: node js/u64_dyn.js
+        working-directory: js
+        run: npm test
