@@ -1,3 +1,4 @@
+const assert = require('node:assert');
 const {
   pack_u64_dyn,
   unpack_u64_dyn,
@@ -20,9 +21,9 @@ const casesU64 = new Map([
 ]);
 for (const [val, enc] of casesU64) {
   const packed = Array.from(pack_u64_dyn(val));
-  console.assert(JSON.stringify(packed) === JSON.stringify(enc), 'pack_u64_dyn mismatch', val);
+  assert.deepStrictEqual(packed, enc, `pack_u64_dyn mismatch for ${val}`);
   const [value, off] = unpack_u64_dyn(Uint8Array.from(enc));
-  console.assert(value === val && off === enc.length, 'unpack_u64_dyn mismatch', val);
+  assert.deepStrictEqual([value, off], [val, enc.length], `unpack_u64_dyn mismatch for ${val}`);
 }
 
 const casesI64 = new Map([
@@ -36,9 +37,9 @@ const casesI64 = new Map([
 ]);
 for (const [val, enc] of casesI64) {
   const packed = Array.from(pack_i64_dyn(BigInt.asIntN(64, val)));
-  console.assert(JSON.stringify(packed) === JSON.stringify(enc), 'pack_i64_dyn mismatch', val);
+  assert.deepStrictEqual(packed, enc, `pack_i64_dyn mismatch for ${val}`);
   const [value, off] = unpack_i64_dyn(Uint8Array.from(enc));
-  console.assert(value === BigInt.asIntN(64, val) && off === enc.length, 'unpack_i64_dyn mismatch', val);
+  assert.deepStrictEqual([value, off], [BigInt.asIntN(64, val), enc.length], `unpack_i64_dyn mismatch for ${val}`);
 }
 
 const casesU64v2 = new Map([
@@ -52,9 +53,9 @@ const casesU64v2 = new Map([
 ]);
 for (const [val, enc] of casesU64v2) {
   const packed = Array.from(pack_u64_dyn_v2(val));
-  console.assert(JSON.stringify(packed) === JSON.stringify(enc), 'pack_u64_dyn_v2 mismatch', val);
+  assert.deepStrictEqual(packed, enc, `pack_u64_dyn_v2 mismatch for ${val}`);
   const [value, off] = unpack_u64_dyn_v2(Uint8Array.from(enc));
-  console.assert(value === val && off === enc.length, 'unpack_u64_dyn_v2 mismatch', val);
+  assert.deepStrictEqual([value, off], [val, enc.length], `unpack_u64_dyn_v2 mismatch for ${val}`);
 }
 
 const casesI64v2 = new Map([
@@ -68,7 +69,7 @@ const casesI64v2 = new Map([
 ]);
 for (const [val, enc] of casesI64v2) {
   const packed = Array.from(pack_i64_dyn_v2(BigInt.asIntN(64, val)));
-  console.assert(JSON.stringify(packed) === JSON.stringify(enc), 'pack_i64_dyn_v2 mismatch', val);
+  assert.deepStrictEqual(packed, enc, `pack_i64_dyn_v2 mismatch for ${val}`);
   const [value, off] = unpack_i64_dyn_v2(Uint8Array.from(enc));
-  console.assert(value === BigInt.asIntN(64, val) && off === enc.length, 'unpack_i64_dyn_v2 mismatch', val);
+  assert.deepStrictEqual([value, off], [BigInt.asIntN(64, val), enc.length], `unpack_i64_dyn_v2 mismatch for ${val}`);
 }
