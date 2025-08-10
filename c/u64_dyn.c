@@ -135,32 +135,24 @@ int64_t unpack_i64_dyn(const uint8_t* in_data, size_t in_size, size_t* out_size)
 
 size_t pack_i64_dyn_v2(uint8_t out[9], int64_t v)
 {
-    uint64_t u;
-    uint64_t neg = (v >> 63);
+    uint64_t u = (uint64_t)v;
+    uint64_t neg = (uint64_t)(v < 0);
     if (neg)
     {
-        u = ~v;
+        u = ~u;
     }
-    else
-    {
-        u = v;
-    }
-    return pack_u64_dyn_v2(out, (neg << 6) | ((u & ~0x3f) << 1) | (u & 0x3f));
+    return pack_u64_dyn_v2(out, (neg << 6) | ((u & ~0x3fULL) << 1) | (u & 0x3fULL));
 }
 
 int64_t unpack_i64_dyn_v2(const uint8_t* in_data, size_t in_size, size_t* out_size)
 {
     uint64_t u = unpack_u64_dyn_v2(in_data, in_size, out_size);
-    const int neg = (u >> 6) & 1; // check bit 6
-    u = ((u >> 1) & ~0x3f) | (u & 0x3f); // remove bit 6
-    int64_t v;
+    const uint64_t neg = (u >> 6) & 1; // check bit 6
+    u = ((u >> 1) & ~0x3fULL) | (u & 0x3fULL); // remove bit 6
+    int64_t v = (int64_t)u;
     if (neg)
     {
-        v = ~u;
-    }
-    else
-    {
-        v = u;
+        v = -v - 1;
     }
     return v;
 }
