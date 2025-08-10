@@ -1,9 +1,9 @@
 #ifndef __U64_DYN_H
 #define __U64_DYN_H
 
+#include <stdbool.h>
 #include <stddef.h> // size_t
 #include <stdint.h>
-#include <stdbool.h>
 
 size_t pack_u64_dyn(uint8_t out[9], uint64_t v);
 bool unpack_u64_dyn(const uint8_t* in_data, size_t in_size, uint64_t* out_v, size_t* out_size);
