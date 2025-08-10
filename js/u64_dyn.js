@@ -23,19 +23,19 @@ function unpack_u64_dyn(buf, offset = 0) {
   let v = 0n;
   let bits = 0n;
   let used = 0;
-  while (offset + used < buf.length && used < 8) {
-    const b = BigInt(buf[offset + used++]);
+  for (; used < 8; used++) {
+    if (offset + used >= buf.length) throw new RangeError('Insufficient data');
+    const b = BigInt(buf[offset + used]);
     v += (b & 0x7fn) << bits;
     if ((b & 0x80n) === 0n) {
-      return [v, offset + used];
+      return [v, offset + used + 1];
     }
     bits += 7n;
   }
-  if (offset + used < buf.length) {
-    const b = BigInt(buf[offset + used++]);
-    v += b << 56n;
-  }
-  return [v, offset + used];
+  if (offset + used >= buf.length) throw new RangeError('Insufficient data');
+  const b = BigInt(buf[offset + used]);
+  v += b << 56n;
+  return [v, offset + used + 1];
 }
 
 function pack_u64_dyn_v2(v) {
@@ -62,20 +62,20 @@ function unpack_u64_dyn_v2(buf, offset = 0) {
   let v = 0n;
   let bits = 0n;
   let used = 0;
-  while (offset + used < buf.length && used < 8) {
-    const b = BigInt(buf[offset + used++]);
+  for (; used < 8; used++) {
+    if (offset + used >= buf.length) throw new RangeError('Insufficient data');
+    const b = BigInt(buf[offset + used]);
     v += (b & 0x7fn) << bits;
     if ((b & 0x80n) === 0n) {
-      return [v, offset + used];
+      return [v, offset + used + 1];
     }
     bits += 7n;
     v += 1n << bits;
   }
-  if (offset + used < buf.length) {
-    const b = BigInt(buf[offset + used++]);
-    v += b << 56n;
-  }
-  return [v, offset + used];
+  if (offset + used >= buf.length) throw new RangeError('Insufficient data');
+  const b = BigInt(buf[offset + used]);
+  v += b << 56n;
+  return [v, offset + used + 1];
 }
 
 function pack_i64_dyn(v) {

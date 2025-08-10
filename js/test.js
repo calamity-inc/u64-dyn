@@ -73,3 +73,27 @@ for (const [val, enc] of casesI64v2) {
   const [value, off] = unpack_i64_dyn_v2(Uint8Array.from(enc));
   assert.deepStrictEqual([value, off], [BigInt.asIntN(64, val), enc.length], `unpack_i64_dyn_v2 mismatch for ${val}`);
 }
+
+function expectThrow(fn, msg) {
+  let threw = false;
+  try {
+    fn();
+  } catch (e) {
+    threw = true;
+  }
+  console.assert(threw, msg);
+}
+
+const truncatedCases = [
+  [],
+  [0x80],
+  [0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80]
+];
+
+for (const enc of truncatedCases) {
+  const buf = Uint8Array.from(enc);
+  expectThrow(() => unpack_u64_dyn(buf), 'unpack_u64_dyn should throw on insufficient data');
+  expectThrow(() => unpack_i64_dyn(buf), 'unpack_i64_dyn should throw on insufficient data');
+  expectThrow(() => unpack_i64_dyn_v2(buf), 'unpack_i64_dyn_v2 should throw on insufficient data');
+  expectThrow(() => unpack_u64_dyn_v2(buf), 'unpack_u64_dyn_v2 should throw on insufficient data');
+}
