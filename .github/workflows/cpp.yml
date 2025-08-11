@@ -7,6 +7,15 @@ on:
   pull_request:
 
 jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check formatting
+        working-directory: cpp
+        run: |
+          clang-format -i *.cpp *.hpp
+          git diff --exit-code
   test:
     runs-on: ubuntu-latest
     steps:
