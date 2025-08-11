@@ -19,11 +19,25 @@ u64_dyn, i64_dyn, u64_dyn_v2, and i64_dyn_v2 are variable-length codings of 64-b
 
 The first 56 bits of the integer are encoded in up to eight little-endian 7-bit groups where the most significant bit indicates if another byte follows. The final 8 bits are encoded as-is.
 
+Value | Encoded As
+------|-----------
+`42` | `2a`
+`0x7f` | `7f`
+`0x80` | `80 01`
+`0x4000` | `80 80 01`
+
 ### u64_dyn_v2
 
 Same as u64_dyn but for each continuation bit (i.e., "another byte follows"), 1 is subtracted from the remaining value after shifting. Decoding compensates by adding a bias.
 
-This added efficiency means that e.g. 0x4000..0x407f are encoded in 2 bytes instead of 3. However, this also means that there are sequences for which `pack_u64_dyn_v2(unpack_u64_dyn_v2(seq)) == seq` does not hold, e.g. `ff ff fe fe fe fe fe fe fe`.
+Value | Encoded As
+------|-----------
+`42` | `2a`
+`0x7f` | `7f`
+`0x80` | `80 00`
+`0x4000` | `80 7f`
+
+Note that there are contrived sequences for which `pack_u64_dyn_v2(unpack_u64_dyn_v2(seq)) == seq` does not hold, e.g. `ff ff fe fe fe fe fe fe fe`.
 
 ### i64_dyn
 
@@ -44,6 +58,13 @@ This value is then encoded using u64_dyn. When decoding, if `neg` is set the ori
 i64 := ~(u63 - 1) | (1 << 63)
 ```
 
+Value | Encoded As
+------|-----------
+`42` | `2a`
+`0x2000` | `80 80 01`
+`-1` | `41`
+`-9223372036854775808` | `40`
+
 ### i64_dyn_v2
 
 The i64 value is split into (neg, u63) like so:
@@ -59,3 +80,10 @@ This is rejoined into a u64 with neg in bit 6:
 u64 := (neg << 6) | ((u63 & ~0x3f) << 1) | (u63 & 0x3f)
 ```
 This value is then encoded using u64_dyn_v2. Decoding is the same in reverse.
+
+Value | Encoded As
+------|-----------
+`42` | `2a`
+`0x2000` | `80 7f`
+`-1` | `40`
+`-9223372036854775808` | `ff fe fe fe fe fe fe fe fe`
