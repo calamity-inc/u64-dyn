@@ -31,7 +31,7 @@ The i64 value is split into (neg, u63) like so:
 ```
 neg := i64 < 0
 if neg:
-    u63 := (i64 * -1) & ~(1 << 63)
+    u63 := (~i64 + 1) & ~(1 << 63)
 else:
     u63 := i64
 ```
@@ -39,7 +39,10 @@ This is rejoined into a u64 with neg in bit 6:
 ```
 u64 := (neg << 6) | ((u63 & ~0x3f) << 1) | (u63 & 0x3f)
 ```
-This value is then encoded using u64_dyn. Decoding is complicated slightly by the fact that `I64_MIN` is encoded as effectively `-0`.
+This value is then encoded using u64_dyn. When decoding, if `neg` is set the original value is recovered with:
+```
+i64 := ~(u63 - 1) | (1 << 63)
+```
 
 ### i64_dyn_v2
 

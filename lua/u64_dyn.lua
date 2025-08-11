@@ -36,7 +36,7 @@ end
 function pack_i64_dyn(v)
     local neg = (v >> 63)
     if v < 0 then
-        v = (v * -1) & ~(1 << 63)
+        v = (~v + 1) & ~(1 << 63)
     end
     return pack_u64_dyn((neg << 6) | ((v & ~0x3f) << 1) | (v & 0x3f))
 end
@@ -47,11 +47,7 @@ function unpack_i64_dyn(str, i)
     local neg = ((v >> 6) & 1) ~= 0
     v = ((v >> 1) & ~0x3f) | (v & 0x3f)
     if neg then
-        if v == 0 then
-            v = 1 << 63
-        else
-            v = v * -1
-        end
+        v = ~(v - 1) | (1 << 63)
     end
     return v, i
 end
