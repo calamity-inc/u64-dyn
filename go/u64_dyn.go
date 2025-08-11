@@ -2,23 +2,25 @@ package u64dyn
 
 import "errors"
 
-// PackU64Dyn packs an integer into u64_dyn bytes.
-func PackU64Dyn(v uint64) []byte {
-	out := make([]byte, 0, 9)
-	for i := 0; i < 8; i++ {
+// PackU64Dyn packs an integer into buf using u64_dyn encoding and
+// returns the number of bytes written.
+func PackU64Dyn(buf []byte, v uint64) int {
+	i := 0
+	for ; i < 8; i++ {
 		cur := byte(v & 0x7f)
 		v >>= 7
 		if v != 0 {
-			out = append(out, cur|0x80)
+			buf[i] = cur | 0x80
 		} else {
-			out = append(out, cur)
-			return out
+			buf[i] = cur
+			return i + 1
 		}
 	}
 	if v != 0 {
-		out = append(out, byte(v))
+		buf[i] = byte(v)
+		i++
 	}
-	return out
+	return i
 }
 
 // UnpackU64Dyn unpacks a u64_dyn encoded integer from buf starting at offset.
@@ -48,24 +50,26 @@ func UnpackU64Dyn(buf []byte, offset int) (uint64, int, error) {
 	return v, offset + used, nil
 }
 
-// PackU64DynV2 packs an integer using u64_dyn_v2.
-func PackU64DynV2(v uint64) []byte {
-	out := make([]byte, 0, 9)
-	for i := 0; i < 8; i++ {
+// PackU64DynV2 packs an integer into buf using u64_dyn_v2 encoding and
+// returns the number of bytes written.
+func PackU64DynV2(buf []byte, v uint64) int {
+	i := 0
+	for ; i < 8; i++ {
 		cur := byte(v & 0x7f)
 		v >>= 7
 		if v != 0 {
-			out = append(out, cur|0x80)
+			buf[i] = cur | 0x80
 			v-- // v2
 		} else {
-			out = append(out, cur)
-			return out
+			buf[i] = cur
+			return i + 1
 		}
 	}
 	if v != 0 {
-		out = append(out, byte(v))
+		buf[i] = byte(v)
+		i++
 	}
-	return out
+	return i
 }
 
 // UnpackU64DynV2 unpacks a u64_dyn_v2 encoded integer from buf starting at offset.
@@ -96,8 +100,9 @@ func UnpackU64DynV2(buf []byte, offset int) (uint64, int, error) {
 	return v, offset + used, nil
 }
 
-// PackI64Dyn packs a signed integer using i64_dyn.
-func PackI64Dyn(v int64) []byte {
+// PackI64Dyn packs a signed integer into buf using i64_dyn encoding and
+// returns the number of bytes written.
+func PackI64Dyn(buf []byte, v int64) int {
 	var u uint64 = uint64(v)
 	neg := uint64(0)
 	if v < 0 {
@@ -105,7 +110,7 @@ func PackI64Dyn(v int64) []byte {
 		u = (^u + 1) & ^(uint64(1) << 63)
 	}
 	packed := (neg << 6) | ((u & ^uint64(0x3f)) << 1) | (u & 0x3f)
-	return PackU64Dyn(packed)
+	return PackU64Dyn(buf, packed)
 }
 
 // UnpackI64Dyn unpacks an i64_dyn encoded integer from buf starting at offset.
@@ -124,8 +129,9 @@ func UnpackI64Dyn(buf []byte, offset int) (int64, int, error) {
 	return v, idx, nil
 }
 
-// PackI64DynV2 packs a signed integer using i64_dyn_v2.
-func PackI64DynV2(v int64) []byte {
+// PackI64DynV2 packs a signed integer into buf using i64_dyn_v2 encoding and
+// returns the number of bytes written.
+func PackI64DynV2(buf []byte, v int64) int {
 	var u uint64
 	var neg uint64
 	if v < 0 {
@@ -135,7 +141,7 @@ func PackI64DynV2(v int64) []byte {
 		u = uint64(v)
 	}
 	packed := (neg << 6) | ((u & ^uint64(0x3f)) << 1) | (u & 0x3f)
-	return PackU64DynV2(packed)
+	return PackU64DynV2(buf, packed)
 }
 
 // UnpackI64DynV2 unpacks an i64_dyn_v2 encoded integer from buf starting at offset.

@@ -16,8 +16,9 @@ func TestPackUnpackU64(t *testing.T) {
 		0x8000000000000000: {0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80},
 	}
 	for val, enc := range cases {
-		got := PackU64Dyn(val)
-		if !bytes.Equal(got, enc) {
+		buf := make([]byte, 9)
+		n := PackU64Dyn(buf, val)
+		if got := buf[:n]; !bytes.Equal(got, enc) {
 			t.Errorf("PackU64Dyn(%d) = %v, want %v", val, got, enc)
 		}
 		v, off, err := UnpackU64Dyn(enc, 0)
@@ -41,8 +42,9 @@ func TestPackUnpackI64(t *testing.T) {
 		-0x8000000000000000: {0x40},
 	}
 	for val, enc := range cases {
-		got := PackI64Dyn(val)
-		if !bytes.Equal(got, enc) {
+		buf := make([]byte, 9)
+		n := PackI64Dyn(buf, val)
+		if got := buf[:n]; !bytes.Equal(got, enc) {
 			t.Errorf("PackI64Dyn(%d) = %v, want %v", val, got, enc)
 		}
 		v, off, err := UnpackI64Dyn(enc, 0)
@@ -66,8 +68,9 @@ func TestPackUnpackU64V2(t *testing.T) {
 		0x8000000000000000: {0x80, 0xFF, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0x7E},
 	}
 	for val, enc := range cases {
-		got := PackU64DynV2(val)
-		if !bytes.Equal(got, enc) {
+		buf := make([]byte, 9)
+		n := PackU64DynV2(buf, val)
+		if got := buf[:n]; !bytes.Equal(got, enc) {
 			t.Errorf("PackU64DynV2(%d) = %v, want %v", val, got, enc)
 		}
 		v, off, err := UnpackU64DynV2(enc, 0)
@@ -91,8 +94,9 @@ func TestPackUnpackI64V2(t *testing.T) {
 		-0x8000000000000000: {0xFF, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE},
 	}
 	for val, enc := range cases {
-		got := PackI64DynV2(val)
-		if !bytes.Equal(got, enc) {
+		buf := make([]byte, 9)
+		n := PackI64DynV2(buf, val)
+		if got := buf[:n]; !bytes.Equal(got, enc) {
 			t.Errorf("PackI64DynV2(%d) = %v, want %v", val, got, enc)
 		}
 		v, off, err := UnpackI64DynV2(enc, 0)
