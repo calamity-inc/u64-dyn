@@ -101,3 +101,11 @@ foreach ($incomplete as $enc)
         assert(false);
     } catch (Exception $e) {}
 }
+
+$enc = "\xFF\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE";
+$offset = 0;
+assert(unpack_u64_dyn_v2($enc, $offset) == 0x7F);
+assert($offset == strlen($enc));
+$offset = 0;
+assert(unpack_i64_dyn_v2($enc, $offset) == -64);
+assert($offset == strlen($enc));

@@ -27,10 +27,10 @@ pub fn unpack_u64_dyn(data: &[u8]) -> Option<(u64, usize)> {
         let b = data[used] as u64;
         used += 1;
         if used == 9 {
-            v += b << bits;
+            v = v.wrapping_add(b << bits);
             break;
         }
-        v += (b & 0x7f) << bits;
+        v = v.wrapping_add((b & 0x7f) << bits);
         if (b & 0x80) == 0 {
             break;
         }
@@ -69,15 +69,15 @@ pub fn unpack_u64_dyn_v2(data: &[u8]) -> Option<(u64, usize)> {
         let b = data[used] as u64;
         used += 1;
         if used == 9 {
-            v += b << bits;
+            v = v.wrapping_add(b << bits);
             break;
         }
-        v += (b & 0x7f) << bits;
+        v = v.wrapping_add((b & 0x7f) << bits);
         if (b & 0x80) == 0 {
             break;
         }
         bits += 7;
-        v += 1u64 << bits; // v2
+        v = v.wrapping_add(1u64 << bits); // v2
     }
     Some((v, used))
 }

@@ -126,3 +126,15 @@ func TestTruncated(t *testing.T) {
         }
     }
 }
+
+func TestWrapModulo64(t *testing.T) {
+    enc := []byte{0xFF, 0xFF, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE}
+    v, off, err := UnpackU64DynV2(enc, 0)
+    if err != nil || v != 0x7F || off != len(enc) {
+        t.Fatalf("UnpackU64DynV2 modulo check failed: (%d,%d,%v)", v, off, err)
+    }
+    sv, off, err := UnpackI64DynV2(enc, 0)
+    if err != nil || sv != -64 || off != len(enc) {
+        t.Fatalf("UnpackI64DynV2 modulo check failed: (%d,%d,%v)", sv, off, err)
+    }
+}
