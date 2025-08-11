@@ -1,0 +1,13 @@
+[package]
+name = "u64_dyn"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[lib]
+path = "lib.rs"
+
+[[test]]
+name = "tests"
+path = "tests.rs"

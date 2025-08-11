@@ -10,6 +10,7 @@ u64_dyn, i64_dyn, u64_dyn_v2, and i64_dyn_v2 are variable-length codings of 64-b
     - The [APM](https://github.com/PlutoLang/apm#readme) package for this can be found [here](https://gist.github.com/Sainan/02c3ac9cea5015341412c92feec95e56)
 - [PHP](php)
 - [Python](python/u64_dyn.py)
+- [Rust](rs)
 
 ## Specifications
 
