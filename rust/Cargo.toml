@@ -1,6 +1,6 @@
 [package]
 name = "u64_dyn"
-version = "0.1.0"
+version = "0.1.1"
 description = "Variable-length 64-bit integer codings that take at most 9 bytes."
 license = "Unlicense"
 edition = "2021"
