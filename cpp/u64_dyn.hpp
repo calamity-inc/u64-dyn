@@ -104,11 +104,9 @@ inline int64_t unpack_i64_dyn(const uint8_t* in_data, size_t in_size, size_t* ou
     static_assert(Version == 1 || Version == 2, "Version must be 1 or 2");
     uint64_t u = unpack_u64_dyn<Version>(in_data, in_size, out_size);
     const uint64_t neg = (u >> 6) & 1;
-    u = ((u >> 1) & ~0x3fULL) | (u & 0x3fULL);
-    int64_t v;
+    int64_t v = ((u >> 1) & ~0x3fULL) | (u & 0x3fULL);
     if constexpr (Version == 2)
     {
-        v = static_cast<int64_t>(u);
         if (neg)
         {
             v = ~v;
@@ -116,10 +114,9 @@ inline int64_t unpack_i64_dyn(const uint8_t* in_data, size_t in_size, size_t* ou
     }
     else
     {
-        v = static_cast<int64_t>(u);
         if (neg)
         {
-            v = static_cast<int64_t>(~(u - 1) | (static_cast<uint64_t>(1) << 63));
+            v = static_cast<int64_t>(~(v - 1) | (static_cast<uint64_t>(1) << 63));
         }
     }
     return v;

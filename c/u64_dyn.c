@@ -139,11 +139,10 @@ bool unpack_i64_dyn(const uint8_t* in_data, size_t in_size, int64_t* out_v, size
         return false;
     }
     const bool neg = (u >> 6) & 1;
-    u = ((u >> 1) & ~((uint64_t)0x3f)) | (u & 0x3f);
-    int64_t v = (int64_t)u;
+    int64_t v = ((u >> 1) & ~((uint64_t)0x3f)) | (u & 0x3f);
     if (neg)
     {
-        v = (int64_t)(~(u - 1) | ((uint64_t)1 << 63));
+        v = (int64_t)(~(v - 1) | ((uint64_t)1 << 63));
     }
     if (out_v)
     {
