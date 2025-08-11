@@ -114,7 +114,7 @@ def pack_i64_dyn(v: int) -> bytes:
     """Pack a signed integer using i64_dyn."""
     if v < 0:
         neg = 1
-        u = (-v) & ((1 << 63) - 1)
+        u = (~v + 1) & ((1 << 63) - 1)
     else:
         neg = 0
         u = v
@@ -127,10 +127,9 @@ def unpack_i64_dyn(buf: bytes, offset: int = 0) -> Tuple[int, int]:
     neg = (u64 >> 6) & 1
     u = ((u64 >> 1) & ~0x3F) | (u64 & 0x3F)
     if neg:
-        if u == 0:
-            v = -(1 << 63)
-        else:
-            v = -u
+        v = (~(u - 1) | (1 << 63)) & ((1 << 64) - 1)
+        if v & (1 << 63):
+            v -= 1 << 64
     else:
         v = u
     return v, idx

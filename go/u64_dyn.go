@@ -98,13 +98,11 @@ func UnpackU64DynV2(buf []byte, offset int) (uint64, int, error) {
 
 // PackI64Dyn packs a signed integer using i64_dyn.
 func PackI64Dyn(v int64) []byte {
-    var u uint64
-    var neg uint64
+    var u uint64 = uint64(v)
+    neg := uint64(0)
     if v < 0 {
         neg = 1
-        u = uint64(-v) & ((1 << 63) - 1)
-    } else {
-        u = uint64(v)
+        u = (^u + 1) & ^(uint64(1) << 63)
     }
     packed := (neg << 6) | ((u & ^uint64(0x3f)) << 1) | (u & 0x3f)
     return PackU64Dyn(packed)
@@ -119,15 +117,9 @@ func UnpackI64Dyn(buf []byte, offset int) (int64, int, error) {
     }
     neg := (u64 >> 6) & 1
     u := ((u64 >> 1) & ^uint64(0x3f)) | (u64 & 0x3f)
-    var v int64
+    var v int64 = int64(u)
     if neg != 0 {
-        if u == 0 {
-            v = -1 << 63
-        } else {
-            v = -int64(u)
-        }
-    } else {
-        v = int64(u)
+        v = int64((^(u - 1)) | (uint64(1) << 63))
     }
     return v, idx, nil
 }

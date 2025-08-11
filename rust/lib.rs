@@ -96,15 +96,10 @@ pub fn unpack_i64_dyn(data: &[u8]) -> Option<(i64, usize)> {
     let (mut u, used) = unpack_u64_dyn(data)?;
     let neg = (u >> 6) & 1;
     u = ((u >> 1) & !0x3f) | (u & 0x3f);
-    let v = if neg != 0 {
-        if u == 0 {
-            (1i64) << 63
-        } else {
-            -(u as i64)
-        }
-    } else {
-        u as i64
-    };
+    let mut v = u as i64;
+    if neg != 0 {
+        v = (!(u.wrapping_sub(1)) | (1u64 << 63)) as i64;
+    }
     Some((v, used))
 }
 

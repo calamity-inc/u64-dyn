@@ -83,11 +83,9 @@ function unpack_u64_dyn_v2(buf, offset = 0) {
 function pack_i64_dyn(v) {
   if (typeof v !== 'bigint') v = BigInt(v);
   const neg = v < 0n ? 1n : 0n;
-  let u;
+  let u = v;
   if (neg) {
-    u = (-v) & ((1n << 63n) - 1n);
-  } else {
-    u = v;
+    u = (~v + 1n) & ~(1n << 63n);
   }
   const packed = (neg << 6n) | ((u & ~0x3fn) << 1n) | (u & 0x3fn);
   return pack_u64_dyn(packed);
@@ -98,15 +96,10 @@ function unpack_i64_dyn(buf, offset = 0) {
   let u = u64;
   const neg = (u >> 6n) & 1n;
   u = ((u >> 1n) & ~0x3fn) | (u & 0x3fn);
-  let v;
+  let v = u;
   if (neg) {
-    if (u === 0n) {
-      v = -(1n << 63n);
-    } else {
-      v = -u;
-    }
-  } else {
-    v = u;
+    v = (~(u - 1n)) | (1n << 63n);
+    v = BigInt.asIntN(64, v);
   }
   return [v, idx];
 }

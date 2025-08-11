@@ -116,20 +116,10 @@ inline int64_t unpack_i64_dyn(const uint8_t* in_data, size_t in_size, size_t* ou
     }
     else
     {
+        v = static_cast<int64_t>(u);
         if (neg)
         {
-            if (u == 0)
-            {
-                v = static_cast<int64_t>(1) << 63;
-            }
-            else
-            {
-                v = -static_cast<int64_t>(u);
-            }
-        }
-        else
-        {
-            v = static_cast<int64_t>(u);
+            v = static_cast<int64_t>(~(u - 1) | (static_cast<uint64_t>(1) << 63));
         }
     }
     return v;

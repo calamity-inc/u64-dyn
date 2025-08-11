@@ -136,8 +136,7 @@ function pack_i64_dyn($v)
     $neg = ($v >> 63) & 1;
     if ($v < 0)
     {
-        $u = add64(~$v, 1);
-        $u &= ~(-1 << 63);
+        $u = add64(~$v, 1) & ~(-1 << 63);
     }
     else
     {
@@ -155,14 +154,7 @@ function unpack_i64_dyn($str, &$offset = 0)
     $v = $upper | ($v & 0x3f);
     if ($neg)
     {
-        if ($v == 0)
-        {
-            $v = PHP_INT_MIN;
-        }
-        else
-        {
-            $v = -$v;
-        }
+        $v = (~($v - 1)) | (1 << 63);
     }
     return $v;
 }
