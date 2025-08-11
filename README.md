@@ -22,6 +22,8 @@ The first 56 bits of the integer are encoded in up to eight little-endian 7-bit 
 
 Same as u64_dyn but for each continuation bit (i.e., "another byte follows"), 1 is subtracted from the remaining value after shifting. Decoding compensates by adding a bias.
 
+This added efficiency means that e.g. 0x4000..0x407f are encoded in 2 bytes instead of 3. However, this also means that there are sequences for which `pack_u64_dyn_v2(unpack_u64_dyn_v2(seq)) == seq` does not hold, e.g. `ff ff fe fe fe fe fe fe fe`.
+
 ### i64_dyn
 
 The i64 value is split into (neg, u63) like so:
