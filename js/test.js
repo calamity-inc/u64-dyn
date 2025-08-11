@@ -58,6 +58,13 @@ for (const [val, enc] of casesU64v2) {
   assert.deepStrictEqual([value, off], [val, enc.length], `unpack_u64_dyn_v2 mismatch for ${val}`);
 }
 
+// Ensure unpack handles contrived overflow by wrapping to 64 bits
+{
+  const enc = Uint8Array.from([0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe]);
+  const [value, off] = unpack_u64_dyn_v2(enc);
+  assert.deepStrictEqual([value, off], [0x7fn, 9], 'unpack_u64_dyn_v2 should wrap modulo 2^64');
+}
+
 const casesI64v2 = new Map([
   [0n, [0x00]],
   [0x7fn, [0xbf, 0x00]],
