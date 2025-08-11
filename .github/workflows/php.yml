@@ -7,6 +7,17 @@ on:
   pull_request:
 
 jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install formatter
+        run: sudo apt-get update && sudo apt-get install -y php-codesniffer
+      - name: Check formatting
+        working-directory: php
+        run: |
+          phpcbf --standard=PSR12 *.php
+          git diff --exit-code
   test:
     runs-on: ubuntu-latest
     steps:

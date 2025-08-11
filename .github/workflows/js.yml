@@ -7,6 +7,16 @@ on:
   pull_request:
 
 jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check formatting
+        working-directory: js
+        run: |
+          npm install prettier
+          npx prettier -w .
+          git diff --exit-code
   test:
     runs-on: ubuntu-latest
     steps:

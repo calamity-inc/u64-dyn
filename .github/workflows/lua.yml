@@ -7,6 +7,17 @@ on:
   pull_request:
 
 jobs:
+  format:
+    runs-on: debian-10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install formatter
+        run: sudo apt-get update && sudo apt-get install -y lua-format
+      - name: Check formatting
+        working-directory: lua
+        run: |
+          lua-format -i *.lua
+          git diff --exit-code
   test:
     runs-on: debian-10
     steps:

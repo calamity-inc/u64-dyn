@@ -7,6 +7,15 @@ on:
   pull_request:
 
 jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install formatter
+        run: rustup component add rustfmt
+      - name: Check formatting
+        working-directory: rust
+        run: cargo fmt --all -- --check
   test:
     runs-on: ubuntu-latest
     steps:

@@ -7,6 +7,17 @@ on:
   pull_request:
 
 jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install formatter
+        run: pip install black
+      - name: Check formatting
+        working-directory: python
+        run: |
+          black .
+          git diff --exit-code
   test:
     runs-on: ubuntu-latest
     steps:
