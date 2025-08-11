@@ -56,7 +56,7 @@ func PackU64DynV2(v uint64) []byte {
         v >>= 7
         if v != 0 {
             out = append(out, cur|0x80)
-            v--
+            v-- // v2
         } else {
             out = append(out, cur)
             return out
@@ -85,7 +85,7 @@ func UnpackU64DynV2(buf []byte, offset int) (uint64, int, error) {
             return v, offset + used, nil
         }
         bits += 7
-        v += 1 << bits
+        v += 1 << bits // v2
     }
     if offset+used >= len(buf) {
         return 0, offset, errors.New("insufficient data")

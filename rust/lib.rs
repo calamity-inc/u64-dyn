@@ -46,7 +46,7 @@ pub fn pack_u64_dyn_v2(mut v: u64) -> Vec<u8> {
         v >>= 7;
         if v != 0 {
             out.push(cur | 0x80);
-            v -= 1;
+            v -= 1; // v2
         } else {
             out.push(cur);
             return out;
@@ -77,7 +77,7 @@ pub fn unpack_u64_dyn_v2(data: &[u8]) -> Option<(u64, usize)> {
             break;
         }
         bits += 7;
-        v += 1u64 << bits;
+        v += 1u64 << bits; // v2
     }
     Some((v, used))
 }

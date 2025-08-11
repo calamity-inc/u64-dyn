@@ -71,7 +71,7 @@ def pack_u64_dyn_v2(v: int) -> bytes:
         v >>= 7
         if v:
             out.append(cur | 0x80)
-            v -= 1
+            v -= 1 # v2
         else:
             out.append(cur)
             return bytes(out)
@@ -99,7 +99,7 @@ def unpack_u64_dyn_v2(buf: bytes, offset: int = 0) -> Tuple[int, int]:
         if (b & 0x80) == 0:
             return v, offset + used
         bits += 7
-        v += 1 << bits
+        v += 1 << bits # v2
     if offset + used >= length:
         raise ValueError('Insufficient data')
     b = buf[offset + used]

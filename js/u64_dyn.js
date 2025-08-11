@@ -48,7 +48,7 @@ function pack_u64_dyn_v2(v) {
     v >>= 7n;
     if (v !== 0n) {
       out.push(Number(cur | 0x80n));
-      v -= 1n;
+      v -= 1n; // v2
     } else {
       out.push(Number(cur));
       return Uint8Array.from(out);
@@ -72,7 +72,7 @@ function unpack_u64_dyn_v2(buf, offset = 0) {
       return [BigInt.asUintN(64, v), offset + used + 1];
     }
     bits += 7n;
-    v += 1n << bits;
+    v += 1n << bits; // v2
   }
   if (offset + used >= buf.length) throw new RangeError('Insufficient data');
   const b = BigInt(buf[offset + used]);
