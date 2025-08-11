@@ -1,9 +1,9 @@
 <?php
+
 function add64($a, $b)
 {
     $mask = -1;
-    while ($b != 0)
-    {
+    while ($b != 0) {
         $carry = ($a & $b) << 1;
         $a = ($a ^ $b) & $mask;
         $b = $carry & $mask;
@@ -13,27 +13,21 @@ function add64($a, $b)
 
 function pack_u64_dyn($v)
 {
-    if (is_float($v))
-    {
+    if (is_float($v)) {
         throw new Exception("Cannot encode a float as u64");
     }
     $out = "";
-    for ($i = 0; $i != 8; ++$i)
-    {
+    for ($i = 0; $i != 8; ++$i) {
         $cur = $v & 0x7f;
         $v >>= 7;
-        if ($v != 0)
-        {
+        if ($v != 0) {
             $out .= chr($cur | 0x80);
-        }
-        else
-        {
+        } else {
             $out .= chr($cur);
             return $out;
         }
     }
-    if ($v != 0)
-    {
+    if ($v != 0) {
         $out .= chr($v);
     }
     return $out;
@@ -45,20 +39,17 @@ function unpack_u64_dyn($str, &$offset = 0)
     $v = 0;
     $bits = 0;
     $i = $offset;
-    while ($i < $len && $i - $offset < 8)
-    {
+    while ($i < $len && $i - $offset < 8) {
         $b = ord($str[$i]);
         $i++;
         $v = add64($v, ($b & 0x7f) << $bits);
-        if (($b & 0x80) == 0)
-        {
+        if (($b & 0x80) == 0) {
             $offset = $i;
             return $v;
         }
         $bits += 7;
     }
-    if ($i >= $len)
-    {
+    if ($i >= $len) {
         throw new Exception("Insufficient data to decode u64");
     }
     $b = ord($str[$i]);
@@ -70,28 +61,22 @@ function unpack_u64_dyn($str, &$offset = 0)
 
 function pack_u64_dyn_v2($v)
 {
-    if (is_float($v))
-    {
+    if (is_float($v)) {
         throw new Exception("Cannot encode a float as u64");
     }
     $out = "";
-    for ($i = 0; $i != 8; ++$i)
-    {
+    for ($i = 0; $i != 8; ++$i) {
         $cur = $v & 0x7f;
         $v >>= 7;
-        if ($v != 0)
-        {
+        if ($v != 0) {
             $out .= chr($cur | 0x80);
             $v -= 1; // v2
-        }
-        else
-        {
+        } else {
             $out .= chr($cur);
             return $out;
         }
     }
-    if ($v != 0)
-    {
+    if ($v != 0) {
         $out .= chr($v);
     }
     return $out;
@@ -103,21 +88,18 @@ function unpack_u64_dyn_v2($str, &$offset = 0)
     $v = 0;
     $bits = 0;
     $i = $offset;
-    while ($i < $len && $i - $offset < 8)
-    {
+    while ($i < $len && $i - $offset < 8) {
         $b = ord($str[$i]);
         $i++;
         $v = add64($v, ($b & 0x7f) << $bits);
-        if (($b & 0x80) == 0)
-        {
+        if (($b & 0x80) == 0) {
             $offset = $i;
             return $v;
         }
         $bits += 7;
         $v = add64($v, 1 << $bits); // v2
     }
-    if ($i >= $len)
-    {
+    if ($i >= $len) {
         throw new Exception("Insufficient data to decode u64");
     }
     $b = ord($str[$i]);
@@ -129,17 +111,13 @@ function unpack_u64_dyn_v2($str, &$offset = 0)
 
 function pack_i64_dyn($v)
 {
-    if (is_float($v))
-    {
+    if (is_float($v)) {
         throw new Exception("Cannot encode a float as i64");
     }
     $neg = ($v >> 63) & 1;
-    if ($v < 0)
-    {
+    if ($v < 0) {
         $u = add64(~$v, 1) & ~(-1 << 63);
-    }
-    else
-    {
+    } else {
         $u = $v;
     }
     return pack_u64_dyn(($neg << 6) | (($u & ~0x3f) << 1) | ($u & 0x3f));
@@ -152,8 +130,7 @@ function unpack_i64_dyn($str, &$offset = 0)
     $upper = $v & ~0x7f;
     $upper = ($upper >> 1) & ~(-1 << 63);
     $v = $upper | ($v & 0x3f);
-    if ($neg)
-    {
+    if ($neg) {
         $v = (~($v - 1)) | (1 << 63);
     }
     return $v;
@@ -161,13 +138,11 @@ function unpack_i64_dyn($str, &$offset = 0)
 
 function pack_i64_dyn_v2($v)
 {
-    if (is_float($v))
-    {
+    if (is_float($v)) {
         throw new Exception("Cannot encode a float as i64");
     }
     $neg = ($v >> 63) & 1;
-    if ($v < 0)
-    {
+    if ($v < 0) {
         $v = ~$v;
     }
     return pack_u64_dyn_v2(($neg << 6) | (($v & ~0x3f) << 1) | ($v & 0x3f));
@@ -180,8 +155,7 @@ function unpack_i64_dyn_v2($str, &$offset = 0)
     $upper = $v & ~0x7f;
     $upper = ($upper >> 1) & ~(-1 << 63);
     $v = $upper | ($v & 0x3f);
-    if ($neg)
-    {
+    if ($neg) {
         $v = ~$v;
     }
     return $v;

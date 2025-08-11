@@ -10,5 +10,8 @@
   "types": "u64_dyn.d.ts",
   "scripts": {
     "test": "node test.js"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
   }
 }

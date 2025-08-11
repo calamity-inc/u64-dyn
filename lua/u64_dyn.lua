@@ -21,14 +21,16 @@ function unpack_u64_dyn(str, i)
     local v = 0
     local bits = 0
     for _ = 1, 8 do
-        local b = str:byte(i) i = i + 1
+        local b = str:byte(i)
+        i = i + 1
         v = v + ((b & 0x7f) << bits)
         if (b >> 7) == 0 then
             return v, i
         end
         bits = bits + 7
     end
-    local b = str:byte(i) i = i + 1
+    local b = str:byte(i)
+    i = i + 1
     v = v + (b << 56)
     return v, i
 end
@@ -76,7 +78,8 @@ function unpack_u64_dyn_v2(str, i)
     local v = 0
     local bits = 0
     for _ = 1, 8 do
-        local b = str:byte(i) i = i + 1
+        local b = str:byte(i)
+        i = i + 1
         v = v + ((b & 0x7f) << bits)
         if (b >> 7) == 0 then
             return v, i
@@ -84,7 +87,8 @@ function unpack_u64_dyn_v2(str, i)
         bits = bits + 7
         v = v + (1 << bits) -- v2
     end
-    local b = str:byte(i) i = i + 1
+    local b = str:byte(i)
+    i = i + 1
     v = v + (b << 56)
     return v, i
 end

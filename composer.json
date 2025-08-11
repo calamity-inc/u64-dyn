@@ -1,15 +1,20 @@
 {
-    "name": "calamity-inc/u64-dyn",
-    "description": "Variable-length 64-bit integer codings that take at most 9 bytes.",
-    "type": "library",
-    "license": "Unlicense",
-    "require": {
-        "php": ">=7.0"
-    },
-    "autoload": {
-        "files": ["php/u64_dyn.php"]
-    },
-    "scripts": {
-        "test": "php php/test.php"
-    }
+  "name": "calamity-inc/u64-dyn",
+  "description": "Variable-length 64-bit integer codings that take at most 9 bytes.",
+  "type": "library",
+  "license": "Unlicense",
+  "require": {
+    "php": ">=7.0"
+  },
+  "autoload": {
+    "files": [
+      "php/u64_dyn.php"
+    ]
+  },
+  "scripts": {
+    "test": "php php/test.php"
+  },
+  "require-dev": {
+    "squizlabs/php_codesniffer": "^3"
+  }
 }

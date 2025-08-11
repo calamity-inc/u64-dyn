@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/u64_dyn.php';
 
 $tests_u64 = [
@@ -11,8 +12,7 @@ $tests_u64 = [
     -9223372036854775808 => "\x80\x80\x80\x80\x80\x80\x80\x80\x80",
 ];
 
-foreach ($tests_u64 as $val => $enc)
-{
+foreach ($tests_u64 as $val => $enc) {
     assert(pack_u64_dyn($val) == $enc);
     $offset = 0;
     assert(unpack_u64_dyn($enc, $offset) == $val);
@@ -29,8 +29,7 @@ $tests_u64 = [
     -9223372036854775808 => "\x80\xFF\xFE\xFE\xFE\xFE\xFE\xFE\x7E",
 ];
 
-foreach ($tests_u64 as $val => $enc)
-{
+foreach ($tests_u64 as $val => $enc) {
     assert(pack_u64_dyn_v2($val) == $enc);
     $offset = 0;
     assert(unpack_u64_dyn_v2($enc, $offset) == $val);
@@ -47,8 +46,7 @@ $tests_i64 = [
     PHP_INT_MIN => "\x40",
 ];
 
-foreach ($tests_i64 as $val => $enc)
-{
+foreach ($tests_i64 as $val => $enc) {
     assert(pack_i64_dyn($val) == $enc);
     $offset = 0;
     assert(unpack_i64_dyn($enc, $offset) == $val);
@@ -65,8 +63,7 @@ $tests_i64 = [
     -9223372036854775808 => "\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE\xFE",
 ];
 
-foreach ($tests_i64 as $val => $enc)
-{
+foreach ($tests_i64 as $val => $enc) {
     assert(pack_i64_dyn_v2($val) == $enc);
     $offset = 0;
     assert(unpack_i64_dyn_v2($enc, $offset) == $val);
@@ -75,31 +72,34 @@ foreach ($tests_i64 as $val => $enc)
 
 $incomplete = [ "", "\x80", "\x80\x80\x80\x80\x80\x80\x80\x80" ];
 
-foreach ($incomplete as $enc)
-{
+foreach ($incomplete as $enc) {
     try {
         $offset = 0;
         unpack_u64_dyn($enc, $offset);
         assert(false);
-    } catch (Exception $e) {}
+    } catch (Exception $e) {
+    }
 
     try {
         $offset = 0;
         unpack_i64_dyn($enc, $offset);
         assert(false);
-    } catch (Exception $e) {}
+    } catch (Exception $e) {
+    }
 
     try {
         $offset = 0;
         unpack_u64_dyn_v2($enc, $offset);
         assert(false);
-    } catch (Exception $e) {}
+    } catch (Exception $e) {
+    }
 
     try {
         $offset = 0;
         unpack_i64_dyn_v2($enc, $offset);
         assert(false);
-    } catch (Exception $e) {}
+    } catch (Exception $e) {
+    }
 }
 
 $enc = "\xFF\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE";

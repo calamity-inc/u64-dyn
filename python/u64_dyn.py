@@ -16,6 +16,7 @@ __all__ = [
 
 # u64_dyn ------------------------------------------------------------------
 
+
 def pack_u64_dyn(v: int) -> bytes:
     """Pack an integer into u64_dyn bytes."""
     v &= (1 << 64) - 1
@@ -45,7 +46,7 @@ def unpack_u64_dyn(buf: bytes, offset: int = 0) -> Tuple[int, int]:
     length = len(buf)
     while used < 8:
         if offset + used >= length:
-            raise ValueError('Insufficient data')
+            raise ValueError("Insufficient data")
         b = buf[offset + used]
         v += (b & 0x7F) << bits
         used += 1
@@ -53,7 +54,7 @@ def unpack_u64_dyn(buf: bytes, offset: int = 0) -> Tuple[int, int]:
             return v & ((1 << 64) - 1), offset + used
         bits += 7
     if offset + used >= length:
-        raise ValueError('Insufficient data')
+        raise ValueError("Insufficient data")
     b = buf[offset + used]
     v += b << 56
     used += 1
@@ -61,6 +62,7 @@ def unpack_u64_dyn(buf: bytes, offset: int = 0) -> Tuple[int, int]:
 
 
 # u64_dyn_v2 ----------------------------------------------------------------
+
 
 def pack_u64_dyn_v2(v: int) -> bytes:
     """Pack an integer using u64_dyn_v2."""
@@ -71,7 +73,7 @@ def pack_u64_dyn_v2(v: int) -> bytes:
         v >>= 7
         if v:
             out.append(cur | 0x80)
-            v -= 1 # v2
+            v -= 1  # v2
         else:
             out.append(cur)
             return bytes(out)
@@ -92,16 +94,16 @@ def unpack_u64_dyn_v2(buf: bytes, offset: int = 0) -> Tuple[int, int]:
     length = len(buf)
     while used < 8:
         if offset + used >= length:
-            raise ValueError('Insufficient data')
+            raise ValueError("Insufficient data")
         b = buf[offset + used]
         v += (b & 0x7F) << bits
         used += 1
         if (b & 0x80) == 0:
             return v & ((1 << 64) - 1), offset + used
         bits += 7
-        v += 1 << bits # v2
+        v += 1 << bits  # v2
     if offset + used >= length:
-        raise ValueError('Insufficient data')
+        raise ValueError("Insufficient data")
     b = buf[offset + used]
     v += b << 56
     used += 1
@@ -109,6 +111,7 @@ def unpack_u64_dyn_v2(buf: bytes, offset: int = 0) -> Tuple[int, int]:
 
 
 # i64_dyn -------------------------------------------------------------------
+
 
 def pack_i64_dyn(v: int) -> bytes:
     """Pack a signed integer using i64_dyn."""
@@ -134,6 +137,7 @@ def unpack_i64_dyn(buf: bytes, offset: int = 0) -> Tuple[int, int]:
 
 
 # i64_dyn_v2 ----------------------------------------------------------------
+
 
 def pack_i64_dyn_v2(v: int) -> bytes:
     """Pack a signed integer using i64_dyn_v2."""
