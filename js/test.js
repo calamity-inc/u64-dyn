@@ -58,13 +58,6 @@ for (const [val, enc] of casesU64v2) {
   assert.deepStrictEqual([value, off], [val, enc.length], `unpack_u64_dyn_v2 mismatch for ${val}`);
 }
 
-// Ensure unpack handles contrived overflow by wrapping to 64 bits
-{
-  const enc = Uint8Array.from([0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe]);
-  assert.deepStrictEqual(unpack_u64_dyn_v2(enc), [0x7fn, 9], 'unpack_u64_dyn_v2 should wrap modulo 2^64');
-  assert.deepStrictEqual(unpack_i64_dyn_v2(enc), [-64n, 9], 'unpack_i64_dyn_v2 should wrap modulo 2^64');
-}
-
 const casesI64v2 = new Map([
   [0n, [0x00]],
   [0x7fn, [0xbf, 0x00]],
@@ -103,4 +96,11 @@ for (const enc of truncatedCases) {
   expectThrow(() => unpack_i64_dyn(buf), 'unpack_i64_dyn should throw on insufficient data');
   expectThrow(() => unpack_i64_dyn_v2(buf), 'unpack_i64_dyn_v2 should throw on insufficient data');
   expectThrow(() => unpack_u64_dyn_v2(buf), 'unpack_u64_dyn_v2 should throw on insufficient data');
+}
+
+// Since JS needs bigint for 64-bit integers, we also need to be sure it unpack is modulo 2^64 for contrived inputs
+{
+  const enc = Uint8Array.from([0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe]);
+  assert.deepStrictEqual(unpack_u64_dyn_v2(enc), [0x7fn, 9], 'unpack_u64_dyn_v2 should wrap modulo 2^64');
+  assert.deepStrictEqual(unpack_i64_dyn_v2(enc), [-64n, 9], 'unpack_i64_dyn_v2 should wrap modulo 2^64');
 }
