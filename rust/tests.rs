@@ -1,0 +1,84 @@
+use u64_dyn::*;
+
+#[test]
+fn test_u64() {
+    let cases = [
+        (0u64, vec![0x00]),
+        (0x7f, vec![0x7f]),
+        (0x80, vec![0x80, 0x01]),
+        (1337, vec![0xb9, 0x0a]),
+        (42069, vec![0xd5, 0xc8, 0x02]),
+        (0xffffffffffffffff, vec![0xff; 9]),
+        (0x8000000000000000, vec![0x80; 9]),
+    ];
+    for (val, enc) in cases {
+        assert_eq!(pack_u64_dyn(val), enc);
+        assert_eq!(unpack_u64_dyn(&enc), Some((val, enc.len())));
+    }
+}
+
+#[test]
+fn test_u64_v2() {
+    let cases = [
+        (0u64, vec![0x00]),
+        (0x7f, vec![0x7f]),
+        (0x80, vec![0x80, 0x00]),
+        (1337, vec![0xb9, 0x09]),
+        (42069, vec![0xd5, 0xc7, 0x01]),
+        (0xffffffffffffffff, vec![0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe]),
+        (0x8000000000000000, vec![0x80, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0x7e]),
+    ];
+    for (val, enc) in cases {
+        assert_eq!(pack_u64_dyn_v2(val), enc);
+        assert_eq!(unpack_u64_dyn_v2(&enc), Some((val, enc.len())));
+    }
+}
+
+#[test]
+fn test_i64() {
+    let cases = [
+        (0i64, vec![0x00]),
+        (0x7f, vec![0xbf, 0x01]),
+        (0x80, vec![0x80, 0x02]),
+        (1337, vec![0xb9, 0x14]),
+        (42069, vec![0x95, 0x91, 0x05]),
+        (-1, vec![0x41]),
+        (i64::MIN, vec![0x40]),
+    ];
+    for (val, enc) in cases {
+        assert_eq!(pack_i64_dyn(val), enc);
+        assert_eq!(unpack_i64_dyn(&enc), Some((val, enc.len())));
+    }
+}
+
+#[test]
+fn test_i64_v2() {
+    let cases = [
+        (0i64, vec![0x00]),
+        (0x7f, vec![0xbf, 0x00]),
+        (0x80, vec![0x80, 0x01]),
+        (1337, vec![0xb9, 0x13]),
+        (42069, vec![0x95, 0x90, 0x04]),
+        (-1, vec![0x40]),
+        (i64::MIN, vec![0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe]),
+    ];
+    for (val, enc) in cases {
+        assert_eq!(pack_i64_dyn_v2(val), enc);
+        assert_eq!(unpack_i64_dyn_v2(&enc), Some((val, enc.len())));
+    }
+}
+
+#[test]
+fn test_truncated() {
+    let truncated = [
+        vec![],
+        vec![0x80],
+        vec![0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80],
+    ];
+    for enc in truncated {
+        assert!(unpack_u64_dyn(&enc).is_none());
+        assert!(unpack_i64_dyn(&enc).is_none());
+        assert!(unpack_i64_dyn_v2(&enc).is_none());
+        assert!(unpack_u64_dyn_v2(&enc).is_none());
+    }
+}
