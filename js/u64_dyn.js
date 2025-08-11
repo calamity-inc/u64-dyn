@@ -3,21 +3,22 @@
 function pack_u64_dyn(v) {
   if (typeof v !== "bigint") v = BigInt(v);
   v = BigInt.asUintN(64, v);
-  const out = [];
-  for (let i = 0; i < 8; i++) {
+  const out = new Uint8Array(9);
+  let length = 0;
+  for (; length < 8; length++) {
     const cur = v & 0x7fn;
     v >>= 7n;
     if (v !== 0n) {
-      out.push(Number(cur | 0x80n));
+      out[length] = Number(cur | 0x80n);
     } else {
-      out.push(Number(cur));
-      return Uint8Array.from(out);
+      out[length] = Number(cur);
+      return out.subarray(0, length + 1);
     }
   }
   if (v !== 0n) {
-    out.push(Number(v));
+    out[length++] = Number(v);
   }
-  return Uint8Array.from(out);
+  return out.subarray(0, length);
 }
 
 function unpack_u64_dyn(buf, offset = 0) {
@@ -42,22 +43,23 @@ function unpack_u64_dyn(buf, offset = 0) {
 function pack_u64_dyn_v2(v) {
   if (typeof v !== "bigint") v = BigInt(v);
   v = BigInt.asUintN(64, v);
-  const out = [];
-  for (let i = 0; i < 8; i++) {
+  const out = new Uint8Array(9);
+  let length = 0;
+  for (; length < 8; length++) {
     const cur = v & 0x7fn;
     v >>= 7n;
     if (v !== 0n) {
-      out.push(Number(cur | 0x80n));
+      out[length] = Number(cur | 0x80n);
       v -= 1n; // v2
     } else {
-      out.push(Number(cur));
-      return Uint8Array.from(out);
+      out[length] = Number(cur);
+      return out.subarray(0, length + 1);
     }
   }
   if (v !== 0n) {
-    out.push(Number(v));
+    out[length++] = Number(v);
   }
-  return Uint8Array.from(out);
+  return out.subarray(0, length);
 }
 
 function unpack_u64_dyn_v2(buf, offset = 0) {
