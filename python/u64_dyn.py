@@ -127,9 +127,7 @@ def unpack_i64_dyn(buf: bytes, offset: int = 0) -> Tuple[int, int]:
     neg = (u64 >> 6) & 1
     u = ((u64 >> 1) & ~0x3F) | (u64 & 0x3F)
     if neg:
-        v = (~(u - 1) | (1 << 63)) & ((1 << 64) - 1)
-        if v & (1 << 63):
-            v -= 1 << 64
+        v = ~(u - 1) | -9223372036854775808
     else:
         v = u
     return v, idx
