@@ -50,14 +50,14 @@ def unpack_u64_dyn(buf: bytes, offset: int = 0) -> Tuple[int, int]:
         v += (b & 0x7F) << bits
         used += 1
         if (b & 0x80) == 0:
-            return v, offset + used
+            return v & ((1 << 64) - 1), offset + used
         bits += 7
     if offset + used >= length:
         raise ValueError('Insufficient data')
     b = buf[offset + used]
     v += b << 56
     used += 1
-    return v, offset + used
+    return v & ((1 << 64) - 1), offset + used
 
 
 # u64_dyn_v2 ----------------------------------------------------------------
@@ -97,7 +97,7 @@ def unpack_u64_dyn_v2(buf: bytes, offset: int = 0) -> Tuple[int, int]:
         v += (b & 0x7F) << bits
         used += 1
         if (b & 0x80) == 0:
-            return v, offset + used
+            return v & ((1 << 64) - 1), offset + used
         bits += 7
         v += 1 << bits # v2
     if offset + used >= length:
@@ -105,7 +105,7 @@ def unpack_u64_dyn_v2(buf: bytes, offset: int = 0) -> Tuple[int, int]:
     b = buf[offset + used]
     v += b << 56
     used += 1
-    return v, offset + used
+    return v & ((1 << 64) - 1), offset + used
 
 
 # i64_dyn -------------------------------------------------------------------

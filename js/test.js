@@ -98,7 +98,6 @@ for (const enc of truncatedCases) {
   expectThrow(() => unpack_u64_dyn_v2(buf), 'unpack_u64_dyn_v2 should throw on insufficient data');
 }
 
-// Since JS needs bigint for 64-bit integers, we also need to be sure it unpack is modulo 2^64 for contrived inputs
 {
   const enc = Uint8Array.from([0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe]);
   assert.deepStrictEqual(unpack_u64_dyn_v2(enc), [0x7fn, 9], 'unpack_u64_dyn_v2 should wrap modulo 2^64');

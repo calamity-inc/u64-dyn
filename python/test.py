@@ -88,6 +88,11 @@ class U64DynTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 unpack_i64_dyn_v2(enc)
 
+    def test_wrap_mod_64(self):
+        enc = bytes([0xFF, 0xFF, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE])
+        self.assertEqual(unpack_u64_dyn_v2(enc), (0x7F, 9))
+        self.assertEqual(unpack_i64_dyn_v2(enc), (-64, 9))
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -82,3 +82,10 @@ fn test_truncated() {
         assert!(unpack_u64_dyn_v2(&enc).is_none());
     }
 }
+
+#[test]
+fn test_wrap_mod_64() {
+    let enc = vec![0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe];
+    assert_eq!(unpack_u64_dyn_v2(&enc), Some((0x7f, 9)));
+    assert_eq!(unpack_i64_dyn_v2(&enc), Some((-64, 9)));
+}

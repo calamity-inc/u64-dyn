@@ -115,5 +115,15 @@ int main()
             assert(!unpack_u64_dyn_v2(bads[i].d, bads[i].s, &u, &used));
         }
     }
+    {
+        const uint8_t enc[] = { 0xFF, 0xFF, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE };
+        uint64_t u;
+        int64_t v;
+        size_t used;
+        assert(unpack_u64_dyn_v2(enc, sizeof(enc), &u, &used));
+        assert(u == 0x7F && used == sizeof(enc));
+        assert(unpack_i64_dyn_v2(enc, sizeof(enc), &v, &used));
+        assert(v == -64 && used == sizeof(enc));
+    }
     return 0;
 }

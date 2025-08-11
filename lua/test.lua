@@ -58,3 +58,13 @@ for _, enc in pairs({ "", "\x80", "\x80\x80\x80\x80\x80\x80\x80\x80" }) do
     assert(not pcall(unpack_i64_dyn_v2, enc))
     assert(not pcall(unpack_u64_dyn_v2, enc))
 end
+
+do
+    local enc = "\xFF\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE"
+    local v, off = unpack_u64_dyn_v2(enc)
+    assert(v == 0x7F)
+    assert(off == #enc + 1)
+    local sv, off2 = unpack_i64_dyn_v2(enc)
+    assert(sv == -64)
+    assert(off2 == #enc + 1)
+end
