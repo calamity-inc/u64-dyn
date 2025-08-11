@@ -86,23 +86,17 @@ func PackI64Dyn(in int64) []byte {
 // UnpackI64Dyn unpacks an i64_dyn encoded integer from buf starting at offset.
 // It returns the value, the new offset, or an error if there is insufficient data.
 func UnpackI64Dyn(buf []byte, offset int) (result int64, off int, err error) {
-	u, off, err := UnpackU64Dyn(buf, offset)
+	u64, off, err := UnpackU64Dyn(buf, offset)
 	if err != nil {
 		return 0, off, err
 	}
-
-	sign := (u >> 6) & 1
-	u63 := ((u >> 1) & ^uint64(0x3f)) | (u & 0x3f)
-
-	if sign == 0 {
-		return int64(u63), off, nil
+	neg := (u64 >> 6) & 1
+	u := ((u64 >> 1) & ^uint64(0x3f)) | (u64 & 0x3f)
+	var v int64 = int64(u)
+	if neg != 0 {
+		v = int64((^(u - 1)) | (uint64(1) << 63))
 	}
-
-	if u63 == 0 {
-		return -1 << 63, off, nil
-	}
-
-	return -int64(u63), off, nil
+	return v, off, nil
 }
 
 // PackI64DynV2 packs a signed integer using i64_dyn_v2.
@@ -114,19 +108,17 @@ func PackI64DynV2(in int64) []byte {
 // UnpackI64DynV2 unpacks an i64_dyn_v2 encoded integer from buf starting at offset.
 // It returns the value, the new offset, or an error if there is insufficient data.
 func UnpackI64DynV2(buf []byte, offset int) (result int64, off int, err error) {
-	u, off, err := UnpackU64DynV2(buf, offset)
+	u64, off, err := UnpackU64DynV2(buf, offset)
 	if err != nil {
 		return 0, off, err
 	}
-
-	sign := (u >> 6) & 1
-	u63 := ((u >> 1) & ^uint64(0x3f)) | (u & 0x3f)
-
-	if sign == 0 {
-		return int64(u63), off, nil
+	neg := (u64 >> 6) & 1
+	u := ((u64 >> 1) & ^uint64(0x3f)) | (u64 & 0x3f)
+	var v int64 = int64(u)
+	if neg != 0 {
+		v = ^v
 	}
-
-	return int64(^u63), off, nil
+	return v, off, nil
 }
 
 func packV1(in uint64, out *[9]byte) []byte {
@@ -170,15 +162,12 @@ func packI64V1(in int64, out *[9]byte) []byte {
 	neg := in < 0
 
 	var u63 uint64
-	if neg {
-		u63 = uint64(-in) & ^(uint64(1) << 63)
-	} else {
-		u63 = uint64(in)
-	}
-
 	var sign uint64
 	if neg {
+		u63 = uint64(-in) & ^(uint64(1) << 63)
 		sign = 1
+	} else {
+		u63 = uint64(in)
 	}
 
 	u := (sign << 6) | ((u63 & ^uint64(0x3f)) << 1) | (u63 & 0x3f)
@@ -189,15 +178,12 @@ func packI64V2(in int64, out *[9]byte) []byte {
 	neg := in < 0
 
 	var u63 uint64
-	if neg {
-		u63 = uint64(^in)
-	} else {
-		u63 = uint64(in)
-	}
-
 	var sign uint64
 	if neg {
+		u63 = uint64(^in)
 		sign = 1
+	} else {
+		u63 = uint64(in)
 	}
 
 	u := (sign << 6) | ((u63 & ^uint64(0x3f)) << 1) | (u63 & 0x3f)
