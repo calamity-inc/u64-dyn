@@ -13,4 +13,4 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run tests
         working-directory: go
-        run: go test ./...
+        run: go test
