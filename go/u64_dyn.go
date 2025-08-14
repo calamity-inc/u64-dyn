@@ -8,14 +8,11 @@ var (
 	ErrInsufficientData = errors.New("insufficient data")
 )
 
-// PackU64Dyn packs an integer into u64_dyn bytes.
 func PackU64Dyn(in uint64) []byte {
 	var buff [9]byte
 	return packV1(in, &buff)
 }
 
-// UnpackU64Dyn unpacks a u64_dyn encoded integer from buf starting at offset.
-// It returns the value, the new offset, or an error if there is insufficient data.
 func UnpackU64Dyn(buf []byte, offset int) (result uint64, off int, err error) {
 	var bits uint
 	var used int
@@ -42,14 +39,11 @@ func UnpackU64Dyn(buf []byte, offset int) (result uint64, off int, err error) {
 	return result, offset + used, nil
 }
 
-// PackU64DynV2 packs an integer using u64_dyn_v2.
 func PackU64DynV2(in uint64) []byte {
 	var buff [9]byte
 	return packV2(in, &buff)
 }
 
-// UnpackU64DynV2 unpacks a u64_dyn_v2 encoded integer from buf starting at offset.
-// It returns the value, the new offset, or an error if there is insufficient data.
 func UnpackU64DynV2(buf []byte, offset int) (result uint64, off int, err error) {
 	var bits uint
 	var used int
@@ -77,14 +71,11 @@ func UnpackU64DynV2(buf []byte, offset int) (result uint64, off int, err error) 
 	return result, offset + used, nil
 }
 
-// PackI64Dyn packs a signed integer using i64_dyn.
 func PackI64Dyn(in int64) []byte {
 	var buff [9]byte
 	return packI64V1(in, &buff)
 }
 
-// UnpackI64Dyn unpacks an i64_dyn encoded integer from buf starting at offset.
-// It returns the value, the new offset, or an error if there is insufficient data.
 func UnpackI64Dyn(buf []byte, offset int) (result int64, off int, err error) {
 	u64, off, err := UnpackU64Dyn(buf, offset)
 	if err != nil {
@@ -99,14 +90,11 @@ func UnpackI64Dyn(buf []byte, offset int) (result int64, off int, err error) {
 	return v, off, nil
 }
 
-// PackI64DynV2 packs a signed integer using i64_dyn_v2.
 func PackI64DynV2(in int64) []byte {
 	var buff [9]byte
 	return packI64V2(in, &buff)
 }
 
-// UnpackI64DynV2 unpacks an i64_dyn_v2 encoded integer from buf starting at offset.
-// It returns the value, the new offset, or an error if there is insufficient data.
 func UnpackI64DynV2(buf []byte, offset int) (result int64, off int, err error) {
 	u64, off, err := UnpackU64DynV2(buf, offset)
 	if err != nil {

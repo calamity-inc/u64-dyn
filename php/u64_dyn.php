@@ -59,7 +59,7 @@ function unpack_u64_dyn($str, &$offset = 0)
     }
     if ($i >= $len)
     {
-        throw new Exception("Insufficient data to decode u64");
+        throw new Exception("Insufficient data");
     }
     $b = ord($str[$i]);
     $v = add64($v, $b << 56);
@@ -118,7 +118,7 @@ function unpack_u64_dyn_v2($str, &$offset = 0)
     }
     if ($i >= $len)
     {
-        throw new Exception("Insufficient data to decode u64");
+        throw new Exception("Insufficient data");
     }
     $b = ord($str[$i]);
     $v = add64($v, $b << 56);

@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 template <int Version> inline size_t pack_u64_dyn(uint8_t out[9], uint64_t v) {
-  static_assert(Version == 1 || Version == 2, "Version must be 1 or 2");
+  static_assert(Version == 1 || Version == 2);
   size_t i = 0;
   while (i != 8) {
     const uint8_t cur = v & 0x7f;
@@ -29,16 +29,16 @@ template <int Version> inline size_t pack_u64_dyn(uint8_t out[9], uint64_t v) {
 template <int Version>
 inline uint64_t unpack_u64_dyn(const uint8_t *in_data, size_t in_size,
                                size_t *out_size) {
-  static_assert(Version == 1 || Version == 2, "Version must be 1 or 2");
+  static_assert(Version == 1 || Version == 2);
   if (!in_data) {
-    throw std::runtime_error("malformed dynamic integer");
+    throw std::runtime_error("Insufficient data");
   }
   uint64_t v = 0;
   int bits = 0;
   size_t used = 0;
   while (true) {
     if (used >= in_size) {
-      throw std::runtime_error("malformed dynamic integer");
+      throw std::runtime_error("Insufficient data");
     }
     uint8_t b = in_data[used++];
     if (used == 9) {
@@ -61,7 +61,7 @@ inline uint64_t unpack_u64_dyn(const uint8_t *in_data, size_t in_size,
 }
 
 template <int Version> inline size_t pack_i64_dyn(uint8_t out[9], int64_t v) {
-  static_assert(Version == 1 || Version == 2, "Version must be 1 or 2");
+  static_assert(Version == 1 || Version == 2);
   uint64_t u = static_cast<uint64_t>(v);
   const uint64_t neg = static_cast<uint64_t>(v < 0);
   if constexpr (Version == 2) {
@@ -80,7 +80,7 @@ template <int Version> inline size_t pack_i64_dyn(uint8_t out[9], int64_t v) {
 template <int Version>
 inline int64_t unpack_i64_dyn(const uint8_t *in_data, size_t in_size,
                               size_t *out_size) {
-  static_assert(Version == 1 || Version == 2, "Version must be 1 or 2");
+  static_assert(Version == 1 || Version == 2);
   uint64_t u = unpack_u64_dyn<Version>(in_data, in_size, out_size);
   const uint64_t neg = (u >> 6) & 1;
   int64_t v = ((u >> 1) & ~0x3fULL) | (u & 0x3fULL);
