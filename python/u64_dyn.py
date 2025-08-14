@@ -1,5 +1,3 @@
-# Python implementation of u64_dyn, u64_dyn_v2, i64_dyn, and i64_dyn_v2
-
 from typing import Tuple
 
 __all__ = [
@@ -13,11 +11,7 @@ __all__ = [
     "unpack_i64_dyn_v2",
 ]
 
-
-# u64_dyn ------------------------------------------------------------------
-
 def pack_u64_dyn(v: int) -> bytes:
-    """Pack an integer into u64_dyn bytes."""
     v &= (1 << 64) - 1
     out = bytearray()
     for _ in range(8):
@@ -34,11 +28,6 @@ def pack_u64_dyn(v: int) -> bytes:
 
 
 def unpack_u64_dyn(buf: bytes, offset: int = 0) -> Tuple[int, int]:
-    """Unpack a u64_dyn encoded integer from buf starting at offset.
-
-    Returns a tuple of (value, new_offset).
-    Raises ValueError if there is insufficient data.
-    """
     v = 0
     bits = 0
     used = 0
@@ -59,11 +48,7 @@ def unpack_u64_dyn(buf: bytes, offset: int = 0) -> Tuple[int, int]:
     used += 1
     return v & ((1 << 64) - 1), offset + used
 
-
-# u64_dyn_v2 ----------------------------------------------------------------
-
 def pack_u64_dyn_v2(v: int) -> bytes:
-    """Pack an integer using u64_dyn_v2."""
     v &= (1 << 64) - 1
     out = bytearray()
     for _ in range(8):
@@ -79,13 +64,7 @@ def pack_u64_dyn_v2(v: int) -> bytes:
         out.append(v)
     return bytes(out)
 
-
 def unpack_u64_dyn_v2(buf: bytes, offset: int = 0) -> Tuple[int, int]:
-    """Unpack a u64_dyn_v2 encoded integer from buf starting at offset.
-
-    Returns (value, new_offset).
-    Raises ValueError if insufficient data.
-    """
     v = 0
     bits = 0
     used = 0
@@ -107,11 +86,7 @@ def unpack_u64_dyn_v2(buf: bytes, offset: int = 0) -> Tuple[int, int]:
     used += 1
     return v & ((1 << 64) - 1), offset + used
 
-
-# i64_dyn -------------------------------------------------------------------
-
 def pack_i64_dyn(v: int) -> bytes:
-    """Pack a signed integer using i64_dyn."""
     if v < 0:
         neg = 1
         u = (~v + 1) & ((1 << 63) - 1)
@@ -120,7 +95,6 @@ def pack_i64_dyn(v: int) -> bytes:
         u = v
     packed = (neg << 6) | ((u & ~0x3F) << 1) | (u & 0x3F)
     return pack_u64_dyn(packed)
-
 
 def unpack_i64_dyn(buf: bytes, offset: int = 0) -> Tuple[int, int]:
     u64, idx = unpack_u64_dyn(buf, offset)
@@ -132,11 +106,7 @@ def unpack_i64_dyn(buf: bytes, offset: int = 0) -> Tuple[int, int]:
         v = u
     return v, idx
 
-
-# i64_dyn_v2 ----------------------------------------------------------------
-
 def pack_i64_dyn_v2(v: int) -> bytes:
-    """Pack a signed integer using i64_dyn_v2."""
     if v < 0:
         neg = 1
         u = (-v) - 1
@@ -145,7 +115,6 @@ def pack_i64_dyn_v2(v: int) -> bytes:
         u = v
     packed = (neg << 6) | ((u & ~0x3F) << 1) | (u & 0x3F)
     return pack_u64_dyn_v2(packed)
-
 
 def unpack_i64_dyn_v2(buf: bytes, offset: int = 0) -> Tuple[int, int]:
     u64, idx = unpack_u64_dyn_v2(buf, offset)
