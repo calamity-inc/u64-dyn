@@ -32,10 +32,7 @@ function pack_u64_dyn($v)
             return $out;
         }
     }
-    if ($v != 0)
-    {
-        $out .= chr($v);
-    }
+    $out .= chr($v);
     return $out;
 }
 
@@ -90,10 +87,7 @@ function pack_u64_dyn_v2($v)
             return $out;
         }
     }
-    if ($v != 0)
-    {
-        $out .= chr($v);
-    }
+    $out .= chr($v);
     return $out;
 }
 

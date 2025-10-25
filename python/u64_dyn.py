@@ -22,8 +22,7 @@ def pack_u64_dyn(v: int) -> bytes:
         else:
             out.append(cur)
             return bytes(out)
-    if v:
-        out.append(v)
+    out.append(v)
     return bytes(out)
 
 
@@ -60,8 +59,7 @@ def pack_u64_dyn_v2(v: int) -> bytes:
         else:
             out.append(cur)
             return bytes(out)
-    if v:
-        out.append(v)
+    out.append(v)
     return bytes(out)
 
 def unpack_u64_dyn_v2(buf: bytes, offset: int = 0) -> Tuple[int, int]:

@@ -10,9 +10,7 @@ function pack_u64_dyn(v)
             return table.concat(out)
         end
     end
-    if v ~= 0 then
-        out[#out + 1] = string.char(v)
-    end
+    out[#out + 1] = string.char(v)
     return table.concat(out)
 end
 
@@ -65,9 +63,7 @@ function pack_u64_dyn_v2(v)
             return table.concat(out)
         end
     end
-    if v ~= 0 then
-        out[#out + 1] = string.char(v)
-    end
+    out[#out + 1] = string.char(v)
     return table.concat(out)
 end
 

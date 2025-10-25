@@ -15,9 +15,7 @@ function pack_u64_dyn(v) {
       return out.subarray(0, length + 1);
     }
   }
-  if (v !== 0n) {
-    out[length++] = Number(v);
-  }
+  out[length++] = Number(v);
   return out.subarray(0, length);
 }
 
@@ -56,9 +54,7 @@ function pack_u64_dyn_v2(v) {
       return out.subarray(0, length + 1);
     }
   }
-  if (v !== 0n) {
-    out[length++] = Number(v);
-  }
+  out[length++] = Number(v);
   return out.subarray(0, length);
 }
 

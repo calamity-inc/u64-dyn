@@ -20,9 +20,7 @@ template <int Version> inline size_t pack_u64_dyn(uint8_t out[9], uint64_t v) {
       return i;
     }
   }
-  if (v != 0) {
-    out[i++] = static_cast<uint8_t>(v);
-  }
+  out[i++] = static_cast<uint8_t>(v);
   return i;
 }
 

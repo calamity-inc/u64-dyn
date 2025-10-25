@@ -29,6 +29,7 @@ int main() {
         {0x80, "\x80\x00", 2},
         {1337, "\xB9\x09", 2},
         {42069, "\xD5\xC7\x01", 3},
+        {0x123456789ABCDEFULL, "\xEF\x9A\xAE\xCC\xF7\xAB\xD0\x90\x00", 9},
         {0xffffffffffffffffULL, "\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE\xFE", 9},
         {0x8000000000000000ULL, "\x80\xFF\xFE\xFE\xFE\xFE\xFE\xFE\x7E", 9},
     };
