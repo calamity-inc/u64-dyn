@@ -10,9 +10,7 @@ pub fn pack_u64_dyn(mut v: u64) -> Vec<u8> {
             return out;
         }
     }
-    if v != 0 {
-        out.push(v as u8);
-    }
+    out.push(v as u8);
     out
 }
 
@@ -52,9 +50,7 @@ pub fn pack_u64_dyn_v2(mut v: u64) -> Vec<u8> {
             return out;
         }
     }
-    if v != 0 {
-        out.push(v as u8);
-    }
+    out.push(v as u8);
     out
 }
 

@@ -12,9 +12,7 @@ size_t pack_u64_dyn(uint8_t out[9], uint64_t v) {
       return i;
     }
   }
-  if (v != 0) {
-    out[i++] = v;
-  }
+  out[i++] = v;
   return i;
 }
 
@@ -60,9 +58,7 @@ size_t pack_u64_dyn_v2(uint8_t out[9], uint64_t v) {
       return i;
     }
   }
-  if (v != 0) {
-    out[i++] = v;
-  }
+  out[i++] = v;
   return i;
 }
 
