@@ -14,7 +14,7 @@ jobs:
       - name: Check formatting
         working-directory: js
         run: |
-          npm install
+          npm ci
           npm run prettier
           git diff --exit-code
   test:
