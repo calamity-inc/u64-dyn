@@ -4,7 +4,7 @@ u64_dyn, i64_dyn, u64_dyn_v2, and i64_dyn_v2 are variable-length codings of 64-b
 
 - [C](c)
 - [C++](cpp/u64_dyn.hpp)
-    - [Soup](https://github.com/calamity-inc/Soup) has implementations for [reading](https://github.com/calamity-inc/Soup/blob/senpai/soup/Reader.cpp) and [writing](https://github.com/calamity-inc/Soup/blob/senpai/soup/Writer.cpp)
+    - [Soup](https://github.com/calamity-inc/Soup) has implementations for [reading](https://github.com/calamity-inc/Soup/blob/senpai/soup/Reader.cpp) and [writing](https://github.com/calamity-inc/Soup/blob/senpai/soup/Writer.cpp) — these are vectorized if supported by the CPU
 - [Go](go)
 - [JavaScript](js)
 - [Lua](lua/u64_dyn.lua)
