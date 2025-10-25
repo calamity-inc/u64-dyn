@@ -28,7 +28,7 @@ template <int Version> inline size_t pack_u64_dyn(uint8_t out[9], uint64_t v) {
 
 template <int Version>
 inline uint64_t unpack_u64_dyn(const uint8_t *in_data, size_t in_size,
-                               size_t *out_size) {
+                               size_t *out_size = nullptr) {
   static_assert(Version == 1 || Version == 2);
   if (!in_data) {
     throw std::runtime_error("Insufficient data");
@@ -79,7 +79,7 @@ template <int Version> inline size_t pack_i64_dyn(uint8_t out[9], int64_t v) {
 
 template <int Version>
 inline int64_t unpack_i64_dyn(const uint8_t *in_data, size_t in_size,
-                              size_t *out_size) {
+                              size_t *out_size = nullptr) {
   static_assert(Version == 1 || Version == 2);
   uint64_t u = unpack_u64_dyn<Version>(in_data, in_size, out_size);
   const uint64_t neg = (u >> 6) & 1;
