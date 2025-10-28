@@ -119,11 +119,8 @@ bool unpack_i64_dyn(const uint8_t *in_data, size_t in_size, int64_t *out_v,
 }
 
 size_t pack_i64_dyn_v2(uint8_t out[9], int64_t v) {
-  uint64_t u = (uint64_t)v;
   uint64_t neg = (uint64_t)(v < 0);
-  if (neg) {
-    u = ~u;
-  }
+  uint64_t u = v ^ (0xffffffffffffffff * neg);
   return pack_u64_dyn_v2(out,
                          (neg << 6) | ((u & ~0x3fULL) << 1) | (u & 0x3fULL));
 }
@@ -136,10 +133,7 @@ bool unpack_i64_dyn_v2(const uint8_t *in_data, size_t in_size, int64_t *out_v,
   }
   const uint64_t neg = (u >> 6) & 1;         // check bit 6
   u = ((u >> 1) & ~0x3fULL) | (u & 0x3fULL); // remove bit 6
-  int64_t v = (int64_t)u;
-  if (neg) {
-    v = ~v;
-  }
+  int64_t v = u ^ (0xffffffffffffffff * neg);
   if (out_v) {
     *out_v = v;
   }
