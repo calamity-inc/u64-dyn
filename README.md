@@ -19,10 +19,10 @@ The first 56 bits of the integer are encoded in up to eight little-endian 7-bit 
 
 Value | Encoded As
 ------|-----------
-`42` | `2a`
 `0x7f` | `7f`
 `0x80` | `80 01`
 `0x4000` | `80 80 01`
+`0xffffffffffffffff` | `ff ff ff ff ff ff ff ff ff`
 
 ### u64_dyn_b
 
@@ -30,10 +30,10 @@ Same as u64_dyn but for each continuation bit (i.e., "another byte follows"), 1 
 
 Value | Encoded As
 ------|-----------
-`42` | `2a`
 `0x7f` | `7f`
 `0x80` | `80 00`
 `0x4000` | `80 7f`
+`0xffffffffffffffff` | `ff fe fe fe fe fe fe fe fe`
 
 Note that there are contrived sequences for which `pack_u64_dyn_b(unpack_u64_dyn_b(seq)) == seq` does not hold, e.g. `ff ff fe fe fe fe fe fe fe`.
 
