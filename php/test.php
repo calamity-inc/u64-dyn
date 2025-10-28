@@ -22,6 +22,23 @@ foreach ($tests_u64 as $val => $enc)
 $tests_u64 = [
     0 => "\x00",
     0x7f => "\x7F",
+    0x80 => "\x80\x02",
+    0x4000 => "\xC0\x00\x02",
+    0x123456789ABCDEF => "\xFF\xEF\xCD\xAB\x89\x67\x45\x23\x01",
+    -1 => "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+];
+
+foreach ($tests_u64 as $val => $enc)
+{
+    assert(pack_u64_dyn_p($val) == $enc);
+    $offset = 0;
+    assert(unpack_u64_dyn_p($enc, $offset) == $val);
+    assert($offset == strlen($enc));
+}
+
+$tests_u64 = [
+    0 => "\x00",
+    0x7f => "\x7F",
     0x80 => "\x80\x00",
     1337 => "\xB9\x09",
     42069 => "\xD5\xC7\x01",
@@ -74,7 +91,7 @@ foreach ($tests_i64 as $val => $enc)
     assert($offset == strlen($enc));
 }
 
-$incomplete = [ "", "\x80", "\x80\x80\x80\x80\x80\x80\x80\x80" ];
+$incomplete = [ "", "\x80", "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF" ];
 
 foreach ($incomplete as $enc)
 {
@@ -93,6 +110,12 @@ foreach ($incomplete as $enc)
     try {
         $offset = 0;
         unpack_u64_dyn_b($enc, $offset);
+        assert(false);
+    } catch (Exception $e) {}
+
+    try {
+        $offset = 0;
+        unpack_u64_dyn_p($enc, $offset);
         assert(false);
     } catch (Exception $e) {}
 
