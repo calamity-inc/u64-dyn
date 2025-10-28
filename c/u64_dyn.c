@@ -201,6 +201,9 @@ bool unpack_u64_dyn_p(const uint8_t *in_data, size_t in_size, uint64_t *out_v,
   if (out_v) {
     *out_v = v;
   }
+  if (out_size) {
+    *out_size = byte_length;
+  }
   return true;
 }
 

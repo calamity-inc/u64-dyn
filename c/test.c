@@ -40,6 +40,7 @@ int main() {
       uint64_t out_v;
       assert(unpack_u64_dyn_b(data, pair->s, &out_v, &out_size));
       assert(out_v == pair->v);
+      assert(out_size == pair->s);
     }
   }
   {
@@ -60,6 +61,7 @@ int main() {
       uint64_t out_v;
       assert(unpack_u64_dyn(data, pair->s, &out_v, &out_size));
       assert(out_v == pair->v);
+      assert(out_size == pair->s);
     }
   }
   {
@@ -79,6 +81,7 @@ int main() {
       int64_t out_v;
       assert(unpack_i64_dyn_a(data, pair->s, &out_v, &out_size));
       assert(out_v == pair->v);
+      assert(out_size == pair->s);
     }
   }
   {
@@ -99,6 +102,7 @@ int main() {
       int64_t out_v;
       assert(unpack_i64_dyn_b(data, pair->s, &out_v, &out_size));
       assert(out_v == pair->v);
+      assert(out_size == pair->s);
     }
   }
   {
@@ -119,6 +123,7 @@ int main() {
       uint64_t out_v;
       assert(unpack_u64_dyn_p(data, pair->s, &out_v, &out_size));
       assert(out_v == pair->v);
+      assert(out_size == pair->s);
     }
   }
   {
