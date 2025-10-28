@@ -15,6 +15,21 @@ end
 
 for val, enc in pairs({
     [0] = "\x00",
+    [0x7f] = "\x7F",
+    [0x80] = "\x80\x02",
+    [1337] = "\xB9\x14",
+    [42069] = "\xD5\x22\x05",
+    [0xffffffffffffffff] = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+    [0x8000000000000000] = "\xFF\x00\x00\x00\x00\x00\x00\x00\x80",
+}) do
+    assert(pack_u64_dyn_p(val) == enc)
+    local v, off = unpack_u64_dyn_p(enc)
+    assert(v == val)
+    assert(off == #enc + 1)
+end
+
+for val, enc in pairs({
+    [0] = "\x00",
     [0x7f] = "\xBF\x01",
     [0x80] = "\x80\x02",
     [1337] = "\xB9\x14",
@@ -58,6 +73,10 @@ for _, enc in pairs({ "", "\x80", "\x80\x80\x80\x80\x80\x80\x80\x80" }) do
     assert(not pcall(unpack_i64_dyn_a, enc))
     assert(not pcall(unpack_i64_dyn_b, enc))
     assert(not pcall(unpack_u64_dyn_b, enc))
+end
+
+for _, enc in pairs({ "\xFF\x00\x00\x00\x00\x00\x00\x00" }) do
+    assert(not pcall(unpack_u64_dyn_p, enc))
 end
 
 do
