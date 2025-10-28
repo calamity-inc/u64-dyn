@@ -66,9 +66,6 @@ end
 function unpack_u64_dyn_p(str, i)
     i = i or 1
     local first_byte = str:byte(i)
-    if not first_byte then
-        error("unpack_u64_dyn_p: input too short")
-    end
 
     local prefix_bits = 0
     while prefix_bits < 8 and (first_byte & (0x80 >> prefix_bits)) ~= 0 do
@@ -77,10 +74,6 @@ function unpack_u64_dyn_p(str, i)
 
     local byte_length = prefix_bits + 1
     local first_byte_value_bits = byte_length < 8 and (8 - byte_length) or 0
-
-    if (#str - i + 1) < byte_length then
-        error("unpack_u64_dyn_p: input too short")
-    end
 
     local v = 0
     for idx = 1, byte_length - 1 do
