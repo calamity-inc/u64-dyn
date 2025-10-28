@@ -31,9 +31,7 @@ function unpack_u64_dyn(str, i)
     return v, i
 end
 
-function pack_u64_dyn_p(v)
-    local u = v & 0xffffffffffffffff
-
+function pack_u64_dyn_p(u)
     local byte_length = 1
     if not math.ult(u, 1 << 7) then byte_length = byte_length + 1 end
     if not math.ult(u, 1 << 14) then byte_length = byte_length + 1 end
