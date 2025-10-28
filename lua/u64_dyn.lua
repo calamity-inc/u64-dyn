@@ -31,7 +31,7 @@ function unpack_u64_dyn(str, i)
     return v, i
 end
 
-function pack_i64_dyn(v)
+function pack_i64_dyn_a(v)
     local neg = (v >> 63)
     if v < 0 then
         v = (~v + 1) & ~(1 << 63)
@@ -39,7 +39,7 @@ function pack_i64_dyn(v)
     return pack_u64_dyn((neg << 6) | ((v & ~0x3f) << 1) | (v & 0x3f))
 end
 
-function unpack_i64_dyn(str, i)
+function unpack_i64_dyn_a(str, i)
     local v
     v, i = unpack_u64_dyn(str, i)
     local neg = ((v >> 6) & 1) ~= 0
@@ -50,7 +50,7 @@ function unpack_i64_dyn(str, i)
     return v, i
 end
 
-function pack_u64_dyn_v2(v)
+function pack_u64_dyn_b(v)
     local out = {}
     for _ = 1, 8 do
         local cur = v & 0x7f
@@ -67,7 +67,7 @@ function pack_u64_dyn_v2(v)
     return table.concat(out)
 end
 
-function unpack_u64_dyn_v2(str, i)
+function unpack_u64_dyn_b(str, i)
     i = i or 1
     local v = 0
     local bits = 0
@@ -85,21 +85,46 @@ function unpack_u64_dyn_v2(str, i)
     return v, i
 end
 
-function pack_i64_dyn_v2(v)
+function pack_i64_dyn_b(v)
     local neg = (v >> 63)
     if v < 0 then
         v = ~v
     end
-    return pack_u64_dyn_v2((neg << 6) | ((v & ~0x3f) << 1) | (v & 0x3f))
+    return pack_u64_dyn_b((neg << 6) | ((v & ~0x3f) << 1) | (v & 0x3f))
 end
 
-function unpack_i64_dyn_v2(str, i)
+function unpack_i64_dyn_b(str, i)
     local v
-    v, i = unpack_u64_dyn_v2(str, i)
+    v, i = unpack_u64_dyn_b(str, i)
     local neg = ((v >> 6) & 1) ~= 0
     v = ((v >> 1) & ~0x3f) | (v & 0x3f)
     if neg then
         v = ~v
     end
     return v, i
+end
+
+function pack_i64_dyn(v)
+    warn("unpack_u64_dyn_b: renamed to pack_i64_dyn_a")
+    return pack_i64_dyn_a(v)
+end
+function unpack_i64_dyn(str, i)
+    warn("unpack_i64_dyn: renamed to unpack_i64_dyn_a")
+    return unpack_i64_dyn_a(str, i)
+end
+function pack_u64_dyn_v2(v)
+    warn("pack_u64_dyn_v2: renamed to pack_u64_dyn_b")
+    return pack_u64_dyn_b(v)
+end
+function unpack_u64_dyn_v2(str, i)
+    warn("unpack_u64_dyn_v2: renamed to unpack_u64_dyn_b")
+    return unpack_u64_dyn_b(str, i)
+end
+function pack_i64_dyn_v2(v)
+    warn("pack_i64_dyn_v2: renamed to pack_i64_dyn_b")
+    return pack_i64_dyn_b(v)
+end
+function unpack_i64_dyn_v2(str, i)
+    warn("unpack_i64_dyn_v2: renamed to unpack_i64_dyn_b")
+    return unpack_i64_dyn_b(str, i)
 end
