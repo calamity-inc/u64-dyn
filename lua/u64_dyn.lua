@@ -105,26 +105,38 @@ function unpack_i64_dyn_b(str, i)
 end
 
 function pack_i64_dyn(v)
-    warn("unpack_u64_dyn_b: renamed to pack_i64_dyn_a")
+    if warn then
+        warn("unpack_u64_dyn_b: renamed to pack_i64_dyn_a")
+    end
     return pack_i64_dyn_a(v)
 end
 function unpack_i64_dyn(str, i)
-    warn("unpack_i64_dyn: renamed to unpack_i64_dyn_a")
+    if warn then
+        warn("unpack_i64_dyn: renamed to unpack_i64_dyn_a")
+    end
     return unpack_i64_dyn_a(str, i)
 end
 function pack_u64_dyn_v2(v)
-    warn("pack_u64_dyn_v2: renamed to pack_u64_dyn_b")
+    if warn then
+        warn("pack_u64_dyn_v2: renamed to pack_u64_dyn_b")
+    end
     return pack_u64_dyn_b(v)
 end
 function unpack_u64_dyn_v2(str, i)
-    warn("unpack_u64_dyn_v2: renamed to unpack_u64_dyn_b")
+    if warn then
+        warn("unpack_u64_dyn_v2: renamed to unpack_u64_dyn_b")
+    end
     return unpack_u64_dyn_b(str, i)
 end
 function pack_i64_dyn_v2(v)
-    warn("pack_i64_dyn_v2: renamed to pack_i64_dyn_b")
+    if warn then
+        warn("pack_i64_dyn_v2: renamed to pack_i64_dyn_b")
+    end
     return pack_i64_dyn_b(v)
 end
 function unpack_i64_dyn_v2(str, i)
-    warn("unpack_i64_dyn_v2: renamed to unpack_i64_dyn_b")
+    if warn then
+        warn("unpack_i64_dyn_v2: renamed to unpack_i64_dyn_b")
+    end
     return unpack_i64_dyn_b(str, i)
 end
