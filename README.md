@@ -11,9 +11,9 @@ Variable-length 64-bit integer codings that take at most 9 bytes.
   - [i64_dyn_bp](#i64_dyn_bp)
 
 ### Guide
-- Biased variants (indicated with a `b`) need less bytes to encode certain sequences, but also leave room for multiple 9-byte sequences producing the same value (modulo 2^64).
+- Biased variants (indicated with a `b`) need less bytes to encode certain sequences.
 - Prefixed variants (indicated with a `p`) are a lot faster to read due to the first byte indicating the sequence length.
-- For signed codings, there is also `a` to indicate arithmetic negation.
+- For signed codings, there is also `a` to indicate arithmetic negation as opposed to bitwise negation.
 
 ## Implementations
 
@@ -50,7 +50,7 @@ Value | Encoded As
 `0x4000` | `80 7f`
 `0xffffffffffffffff` | `ff fe fe fe fe fe fe fe fe`
 
-Note that there are contrived sequences for which `pack_u64_dyn_b(unpack_u64_dyn_b(seq)) == seq` does not hold, e.g. `ff ff fe fe fe fe fe fe fe`.
+Contrived sequences which would exceed 2^64 (e.g. `ff ff fe fe fe fe fe fe fe`) are illegal. Decoders can detect them (by checking `v > UINT64_MAX - bias` before adding the bias) and should return an error appropriately.
 
 ### u64_dyn_p
 
