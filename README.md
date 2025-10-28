@@ -2,12 +2,12 @@ Variable-length 64-bit integer codings that take at most 9 bytes.
 
 - Unsigned
   - [u64_dyn](#u64_dyn)
-  - [u64_dyn_b](#u64_dyn_b)
+  - [u64_dyn_b](#u64_dyn_b) *(fka. `u64_dyn_v2`)*
   - [u64_dyn_p](#u64_dyn_p)
   - [u64_dyn_bp](#u64_dyn_bp)
 - Signed
-  - [i64_dyn_a](#i64_dyn_a)
-  - [i64_dyn_b](#i64_dyn_b)
+  - [i64_dyn_a](#i64_dyn_a) *(fka. `i64_dyn`)*
+  - [i64_dyn_b](#i64_dyn_b) *(fka. `i64_dyn_v2`)*
   - [i64_dyn_bp](#i64_dyn_bp)
 
 ### Guide
