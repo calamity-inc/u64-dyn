@@ -85,21 +85,8 @@ function pack_u64_dyn_p($v)
     $first_byte_value_bits = $byte_length < 8 ? 8 - $byte_length : 0;
     $first_byte_prefix_bits = $byte_length - 1;
 
-    if ($first_byte_prefix_bits == 0)
-    {
-        $prefix = 0;
-    }
-    else
-    {
-        $prefix = ((1 << $first_byte_prefix_bits) - 1) << (8 - $first_byte_prefix_bits);
-    }
-
-    $value_mask = $first_byte_value_bits == 0 ? 0 : ((1 << $first_byte_value_bits) - 1);
-    $first_byte = ($prefix | ($v & $value_mask)) & 0xff;
-    if ($first_byte_value_bits != 0)
-    {
-        $v >>= $first_byte_value_bits;
-    }
+    $first_byte = ((0xff << (8 - $first_byte_prefix_bits)) & 0xff) | ($v & ((1 << $first_byte_value_bits) - 1));
+    $v >>= $first_byte_value_bits;
 
     $out = chr($first_byte);
     for ($idx = 1; $idx < $byte_length; ++$idx)
