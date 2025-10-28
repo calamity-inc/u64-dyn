@@ -128,11 +128,8 @@ function unpack_u64_dyn_p($str, &$offset = 0)
         $v |= $b << (($idx - 1) * 8);
     }
 
-    if ($first_byte_value_bits != 0)
-    {
-        $v <<= $first_byte_value_bits;
-        $v |= $first_byte & ((1 << $first_byte_value_bits) - 1);
-    }
+    $v <<= $first_byte_value_bits;
+    $v |= $first_byte & ((1 << $first_byte_value_bits) - 1);
 
     $offset += $byte_length;
     return $v;
