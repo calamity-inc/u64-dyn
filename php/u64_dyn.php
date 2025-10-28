@@ -65,7 +65,7 @@ function unpack_u64_dyn($str, &$offset = 0)
     return $v;
 }
 
-function pack_u64_dyn_v2($v)
+function pack_u64_dyn_b($v)
 {
     if (is_float($v))
     {
@@ -91,7 +91,7 @@ function pack_u64_dyn_v2($v)
     return $out;
 }
 
-function unpack_u64_dyn_v2($str, &$offset = 0)
+function unpack_u64_dyn_b($str, &$offset = 0)
 {
     $len = strlen($str);
     $v = 0;
@@ -121,7 +121,7 @@ function unpack_u64_dyn_v2($str, &$offset = 0)
     return $v;
 }
 
-function pack_i64_dyn($v)
+function pack_i64_dyn_a($v)
 {
     if (is_float($v))
     {
@@ -139,7 +139,7 @@ function pack_i64_dyn($v)
     return pack_u64_dyn(($neg << 6) | (($u & ~0x3f) << 1) | ($u & 0x3f));
 }
 
-function unpack_i64_dyn($str, &$offset = 0)
+function unpack_i64_dyn_a($str, &$offset = 0)
 {
     $v = unpack_u64_dyn($str, $offset);
     $neg = (($v >> 6) & 1) != 0;
@@ -153,7 +153,7 @@ function unpack_i64_dyn($str, &$offset = 0)
     return $v;
 }
 
-function pack_i64_dyn_v2($v)
+function pack_i64_dyn_b($v)
 {
     if (is_float($v))
     {
@@ -164,12 +164,12 @@ function pack_i64_dyn_v2($v)
     {
         $v = ~$v;
     }
-    return pack_u64_dyn_v2(($neg << 6) | (($v & ~0x3f) << 1) | ($v & 0x3f));
+    return pack_u64_dyn_b(($neg << 6) | (($v & ~0x3f) << 1) | ($v & 0x3f));
 }
 
-function unpack_i64_dyn_v2($str, &$offset = 0)
+function unpack_i64_dyn_b($str, &$offset = 0)
 {
-    $v = unpack_u64_dyn_v2($str, $offset);
+    $v = unpack_u64_dyn_b($str, $offset);
     $neg = (($v >> 6) & 1) != 0;
     $upper = $v & ~0x7f;
     $upper = ($upper >> 1) & ~(-1 << 63);
@@ -179,4 +179,48 @@ function unpack_i64_dyn_v2($str, &$offset = 0)
         $v = ~$v;
     }
     return $v;
+}
+
+function warn_deprecated($old, $new)
+{
+    if (function_exists('trigger_error'))
+    {
+        @trigger_error("$old: renamed to $new", E_USER_DEPRECATED);
+    }
+}
+
+function pack_u64_dyn_v2($v)
+{
+    warn_deprecated('pack_u64_dyn_v2', 'pack_u64_dyn_b');
+    return pack_u64_dyn_b($v);
+}
+
+function unpack_u64_dyn_v2($str, &$offset = 0)
+{
+    warn_deprecated('unpack_u64_dyn_v2', 'unpack_u64_dyn_b');
+    return unpack_u64_dyn_b($str, $offset);
+}
+
+function pack_i64_dyn($v)
+{
+    warn_deprecated('pack_i64_dyn', 'pack_i64_dyn_a');
+    return pack_i64_dyn_a($v);
+}
+
+function unpack_i64_dyn($str, &$offset = 0)
+{
+    warn_deprecated('unpack_i64_dyn', 'unpack_i64_dyn_a');
+    return unpack_i64_dyn_a($str, $offset);
+}
+
+function pack_i64_dyn_v2($v)
+{
+    warn_deprecated('pack_i64_dyn_v2', 'pack_i64_dyn_b');
+    return pack_i64_dyn_b($v);
+}
+
+function unpack_i64_dyn_v2($str, &$offset = 0)
+{
+    warn_deprecated('unpack_i64_dyn_v2', 'unpack_i64_dyn_b');
+    return unpack_i64_dyn_b($str, $offset);
 }

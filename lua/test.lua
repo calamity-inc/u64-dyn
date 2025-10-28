@@ -22,8 +22,8 @@ for val, enc in pairs({
     [-1] = "\x41",
     [-9223372036854775808] = "\x40",
 }) do
-    assert(pack_i64_dyn(val) == enc)
-    assert(unpack_i64_dyn(enc) == val)
+    assert(pack_i64_dyn_a(val) == enc)
+    assert(unpack_i64_dyn_a(enc) == val)
 end
 
 for val, enc in pairs({
@@ -36,8 +36,8 @@ for val, enc in pairs({
     [0xffffffffffffffff] = "\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE\xFE",
     [0x8000000000000000] = "\x80\xFF\xFE\xFE\xFE\xFE\xFE\xFE\x7E",
 }) do
-    assert(pack_u64_dyn_v2(val) == enc)
-    assert(unpack_u64_dyn_v2(enc) == val)
+    assert(pack_u64_dyn_b(val) == enc)
+    assert(unpack_u64_dyn_b(enc) == val)
 end
 
 for val, enc in pairs({
@@ -49,23 +49,23 @@ for val, enc in pairs({
     [-1] = "\x40",
     [-9223372036854775808] = "\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE\xFE",
 }) do
-    assert(pack_i64_dyn_v2(val) == enc)
-    assert(unpack_i64_dyn_v2(enc) == val)
+    assert(pack_i64_dyn_b(val) == enc)
+    assert(unpack_i64_dyn_b(enc) == val)
 end
 
 for _, enc in pairs({ "", "\x80", "\x80\x80\x80\x80\x80\x80\x80\x80" }) do
     assert(not pcall(unpack_u64_dyn, enc))
-    assert(not pcall(unpack_i64_dyn, enc))
-    assert(not pcall(unpack_i64_dyn_v2, enc))
-    assert(not pcall(unpack_u64_dyn_v2, enc))
+    assert(not pcall(unpack_i64_dyn_a, enc))
+    assert(not pcall(unpack_i64_dyn_b, enc))
+    assert(not pcall(unpack_u64_dyn_b, enc))
 end
 
 do
     local enc = "\xFF\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE"
-    local v, off = unpack_u64_dyn_v2(enc)
+    local v, off = unpack_u64_dyn_b(enc)
     assert(v == 0x7F)
     assert(off == #enc + 1)
-    local sv, off2 = unpack_i64_dyn_v2(enc)
+    local sv, off2 = unpack_i64_dyn_b(enc)
     assert(sv == -64)
     assert(off2 == #enc + 1)
 end

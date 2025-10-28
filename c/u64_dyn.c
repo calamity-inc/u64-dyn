@@ -45,7 +45,7 @@ bool unpack_u64_dyn(const uint8_t *in_data, size_t in_size, uint64_t *out_v,
   return true;
 }
 
-size_t pack_u64_dyn_v2(uint8_t out[9], uint64_t v) {
+size_t pack_u64_dyn_b(uint8_t out[9], uint64_t v) {
   size_t i = 0;
   while (i != 8) {
     const uint8_t cur = v & 0x7f;
@@ -62,8 +62,8 @@ size_t pack_u64_dyn_v2(uint8_t out[9], uint64_t v) {
   return i;
 }
 
-bool unpack_u64_dyn_v2(const uint8_t *in_data, size_t in_size, uint64_t *out_v,
-                       size_t *out_size) {
+bool unpack_u64_dyn_b(const uint8_t *in_data, size_t in_size, uint64_t *out_v,
+                      size_t *out_size) {
   uint64_t v = 0;
   int bits = 0;
   size_t used = 0;
@@ -92,7 +92,7 @@ bool unpack_u64_dyn_v2(const uint8_t *in_data, size_t in_size, uint64_t *out_v,
   return true;
 }
 
-size_t pack_i64_dyn(uint8_t out[9], int64_t v) {
+size_t pack_i64_dyn_a(uint8_t out[9], int64_t v) {
   uint64_t u = (uint64_t)v;
   uint64_t neg = (uint64_t)(v < 0);
   if (neg) {
@@ -101,8 +101,8 @@ size_t pack_i64_dyn(uint8_t out[9], int64_t v) {
   return pack_u64_dyn(out, (neg << 6) | ((u & ~0x3f) << 1) | (u & 0x3f));
 }
 
-bool unpack_i64_dyn(const uint8_t *in_data, size_t in_size, int64_t *out_v,
-                    size_t *out_size) {
+bool unpack_i64_dyn_a(const uint8_t *in_data, size_t in_size, int64_t *out_v,
+                      size_t *out_size) {
   uint64_t u;
   if (!unpack_u64_dyn(in_data, in_size, &u, out_size)) {
     return false;
@@ -118,17 +118,17 @@ bool unpack_i64_dyn(const uint8_t *in_data, size_t in_size, int64_t *out_v,
   return true;
 }
 
-size_t pack_i64_dyn_v2(uint8_t out[9], int64_t v) {
+size_t pack_i64_dyn_b(uint8_t out[9], int64_t v) {
   uint64_t neg = (uint64_t)(v < 0);
   uint64_t u = v ^ (0xffffffffffffffff * neg);
-  return pack_u64_dyn_v2(out,
-                         (neg << 6) | ((u & ~0x3fULL) << 1) | (u & 0x3fULL));
+  return pack_u64_dyn_b(out,
+                        (neg << 6) | ((u & ~0x3fULL) << 1) | (u & 0x3fULL));
 }
 
-bool unpack_i64_dyn_v2(const uint8_t *in_data, size_t in_size, int64_t *out_v,
-                       size_t *out_size) {
+bool unpack_i64_dyn_b(const uint8_t *in_data, size_t in_size, int64_t *out_v,
+                      size_t *out_size) {
   uint64_t u;
-  if (!unpack_u64_dyn_v2(in_data, in_size, &u, out_size)) {
+  if (!unpack_u64_dyn_b(in_data, in_size, &u, out_size)) {
     return false;
   }
   const uint64_t neg = (u >> 6) & 1;         // check bit 6
@@ -138,4 +138,31 @@ bool unpack_i64_dyn_v2(const uint8_t *in_data, size_t in_size, int64_t *out_v,
     *out_v = v;
   }
   return true;
+}
+
+size_t pack_u64_dyn_v2(uint8_t out[9], uint64_t v) {
+  return pack_u64_dyn_b(out, v);
+}
+
+bool unpack_u64_dyn_v2(const uint8_t *in_data, size_t in_size, uint64_t *out_v,
+                       size_t *out_size) {
+  return unpack_u64_dyn_b(in_data, in_size, out_v, out_size);
+}
+
+size_t pack_i64_dyn(uint8_t out[9], int64_t v) {
+  return pack_i64_dyn_a(out, v);
+}
+
+bool unpack_i64_dyn(const uint8_t *in_data, size_t in_size, int64_t *out_v,
+                    size_t *out_size) {
+  return unpack_i64_dyn_a(in_data, in_size, out_v, out_size);
+}
+
+size_t pack_i64_dyn_v2(uint8_t out[9], int64_t v) {
+  return pack_i64_dyn_b(out, v);
+}
+
+bool unpack_i64_dyn_v2(const uint8_t *in_data, size_t in_size, int64_t *out_v,
+                       size_t *out_size) {
+  return unpack_i64_dyn_b(in_data, in_size, out_v, out_size);
 }
