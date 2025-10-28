@@ -26,7 +26,6 @@ $tests_u64 = [
     0x123456789ABCDEF => "\xFF\xEF\xCD\xAB\x89\x67\x45\x23\x01",
     -1 => "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
 ];
-
 foreach ($tests_u64 as $val => $enc)
 {
     assert(pack_u64_dyn_p($val) == $enc);
@@ -34,6 +33,7 @@ foreach ($tests_u64 as $val => $enc)
     assert(unpack_u64_dyn_p($enc, $offset) == $val);
     assert($offset == strlen($enc));
 }
+
 $tests_u64 = [
     0 => "\x00",
     0x7f => "\x7F",
