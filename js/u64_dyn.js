@@ -38,7 +38,7 @@ function unpack_u64_dyn(buf, offset = 0) {
   return [BigInt.asUintN(64, v), offset + used + 1];
 }
 
-function pack_u64_dyn_v2(v) {
+function pack_u64_dyn_b(v) {
   if (typeof v !== "bigint") v = BigInt(v);
   v = BigInt.asUintN(64, v);
   const out = new Uint8Array(9);
@@ -58,7 +58,7 @@ function pack_u64_dyn_v2(v) {
   return out.subarray(0, length);
 }
 
-function unpack_u64_dyn_v2(buf, offset = 0) {
+function unpack_u64_dyn_b(buf, offset = 0) {
   let v = 0n;
   let bits = 0n;
   let used = 0;
@@ -78,7 +78,7 @@ function unpack_u64_dyn_v2(buf, offset = 0) {
   return [BigInt.asUintN(64, v), offset + used + 1];
 }
 
-function pack_i64_dyn(v) {
+function pack_i64_dyn_a(v) {
   if (typeof v !== "bigint") v = BigInt(v);
   const neg = v < 0n ? 1n : 0n;
   let u = v;
@@ -89,7 +89,7 @@ function pack_i64_dyn(v) {
   return pack_u64_dyn(packed);
 }
 
-function unpack_i64_dyn(buf, offset = 0) {
+function unpack_i64_dyn_a(buf, offset = 0) {
   const [u64, idx] = unpack_u64_dyn(buf, offset);
   let u = u64;
   const neg = (u >> 6n) & 1n;
@@ -102,7 +102,7 @@ function unpack_i64_dyn(buf, offset = 0) {
   return [v, idx];
 }
 
-function pack_i64_dyn_v2(v) {
+function pack_i64_dyn_b(v) {
   if (typeof v !== "bigint") v = BigInt(v);
   const neg = v < 0n ? 1n : 0n;
   let u;
@@ -112,11 +112,11 @@ function pack_i64_dyn_v2(v) {
     u = v;
   }
   const packed = (neg << 6n) | ((u & ~0x3fn) << 1n) | (u & 0x3fn);
-  return pack_u64_dyn_v2(packed);
+  return pack_u64_dyn_b(packed);
 }
 
-function unpack_i64_dyn_v2(buf, offset = 0) {
-  const [u64, idx] = unpack_u64_dyn_v2(buf, offset);
+function unpack_i64_dyn_b(buf, offset = 0) {
+  const [u64, idx] = unpack_u64_dyn_b(buf, offset);
   let u = u64;
   const neg = (u >> 6n) & 1n;
   u = ((u >> 1n) & ~0x3fn) | (u & 0x3fn);
@@ -129,9 +129,39 @@ function unpack_i64_dyn_v2(buf, offset = 0) {
   return [v, idx];
 }
 
+function pack_u64_dyn_v2(v) {
+  return pack_u64_dyn_b(v);
+}
+
+function unpack_u64_dyn_v2(buf, offset = 0) {
+  return unpack_u64_dyn_b(buf, offset);
+}
+
+function pack_i64_dyn(v) {
+  return pack_i64_dyn_a(v);
+}
+
+function unpack_i64_dyn(buf, offset = 0) {
+  return unpack_i64_dyn_a(buf, offset);
+}
+
+function pack_i64_dyn_v2(v) {
+  return pack_i64_dyn_b(v);
+}
+
+function unpack_i64_dyn_v2(buf, offset = 0) {
+  return unpack_i64_dyn_b(buf, offset);
+}
+
 module.exports = {
   pack_u64_dyn,
   unpack_u64_dyn,
+  pack_u64_dyn_b,
+  unpack_u64_dyn_b,
+  pack_i64_dyn_a,
+  unpack_i64_dyn_a,
+  pack_i64_dyn_b,
+  unpack_i64_dyn_b,
   pack_u64_dyn_v2,
   unpack_u64_dyn_v2,
   pack_i64_dyn,
