@@ -75,7 +75,7 @@ for _, enc in pairs({ "", "\x80", "\x80\x80\x80\x80\x80\x80\x80\x80" }) do
     assert(not pcall(unpack_u64_dyn_b, enc))
 end
 
-for _, enc in pairs({ "\xFF\x00\x00\x00\x00\x00\x00\x00" }) do
+for _, enc in pairs({ "", "\x80", "\xFF\x00\x00\x00\x00\x00\x00\x00" }) do
     assert(not pcall(unpack_u64_dyn_p, enc))
 end
 
