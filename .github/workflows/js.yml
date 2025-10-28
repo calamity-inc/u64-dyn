@@ -2,8 +2,6 @@ name: JavaScript
 
 on:
   push:
-    branches:
-      - senpai
   pull_request:
 
 jobs:
