@@ -122,7 +122,7 @@ function unpack_u64_dyn_p($str, &$offset = 0)
     }
 
     $v = 0;
-    for ($idx = 1; $idx < $byte_length; ++$idx)
+    for ($idx = 1; $idx != $byte_length; ++$idx)
     {
         $b = ord($str[$offset + $idx]);
         $v |= $b << (($idx - 1) * 8);
