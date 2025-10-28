@@ -45,13 +45,7 @@ function pack_u64_dyn_p(u)
     local first_byte_value_bits = byte_length < 8 and (8 - byte_length) or 0
     local first_byte_prefix_bits = byte_length - 1
 
-    local prefix_mask = 0
-    for bit = 1, first_byte_prefix_bits do
-        prefix_mask = prefix_mask | (1 << (8 - bit))
-    end
-
-    local value_mask = first_byte_value_bits == 0 and 0 or ((1 << first_byte_value_bits) - 1)
-    local first_byte = (prefix_mask | (u & value_mask)) & 0xff
+    local first_byte = ((0xff << (8 - first_byte_prefix_bits)) & 0xff) | (u & ((1 << first_byte_value_bits) - 1))
     u = u >> first_byte_value_bits
 
     local out = { string.char(first_byte) }

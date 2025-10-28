@@ -65,6 +65,76 @@ function unpack_u64_dyn($str, &$offset = 0)
     return $v;
 }
 
+function pack_u64_dyn_p($v)
+{
+    if (is_float($v))
+    {
+        throw new Exception("Cannot encode a float as u64");
+    }
+
+    $byte_length = 1;
+    if (($v >> 7) != 0) { $byte_length += 1; }
+    if (($v >> 14) != 0) { $byte_length += 1; }
+    if (($v >> 21) != 0) { $byte_length += 1; }
+    if (($v >> 28) != 0) { $byte_length += 1; }
+    if (($v >> 35) != 0) { $byte_length += 1; }
+    if (($v >> 42) != 0) { $byte_length += 1; }
+    if (($v >> 49) != 0) { $byte_length += 1; }
+    if (($v >> 56) != 0) { $byte_length += 1; }
+
+    $first_byte_value_bits = $byte_length < 8 ? 8 - $byte_length : 0;
+    $first_byte_prefix_bits = $byte_length - 1;
+
+    $first_byte = ((0xff << (8 - $first_byte_prefix_bits)) & 0xff) | ($v & ((1 << $first_byte_value_bits) - 1));
+    $v >>= $first_byte_value_bits;
+
+    $out = chr($first_byte);
+    for ($idx = 1; $idx < $byte_length; ++$idx)
+    {
+        $out .= chr(($v >> (($idx - 1) * 8)) & 0xff);
+    }
+
+    return $out;
+}
+
+function unpack_u64_dyn_p($str, &$offset = 0)
+{
+    $len = strlen($str);
+    if ($offset >= $len)
+    {
+        throw new Exception("Insufficient data");
+    }
+
+    $first_byte = ord($str[$offset]);
+
+    $prefix_bits = 0;
+    while ($prefix_bits < 8 && ($first_byte & (0x80 >> $prefix_bits)) != 0)
+    {
+        $prefix_bits += 1;
+    }
+
+    $byte_length = $prefix_bits + 1;
+    $first_byte_value_bits = $byte_length < 8 ? 8 - $byte_length : 0;
+
+    if ($offset + $byte_length > $len)
+    {
+        throw new Exception("Insufficient data");
+    }
+
+    $v = 0;
+    for ($idx = 1; $idx != $byte_length; ++$idx)
+    {
+        $b = ord($str[$offset + $idx]);
+        $v |= $b << (($idx - 1) * 8);
+    }
+
+    $v <<= $first_byte_value_bits;
+    $v |= $first_byte & ((1 << $first_byte_value_bits) - 1);
+
+    $offset += $byte_length;
+    return $v;
+}
+
 function pack_u64_dyn_b($v)
 {
     if (is_float($v))
