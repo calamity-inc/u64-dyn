@@ -30,8 +30,8 @@ fn test_u64_v2() {
         (0x8000000000000000, vec![0x80, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0x7e]),
     ];
     for (val, enc) in cases {
-        assert_eq!(pack_u64_dyn_v2(val), enc);
-        assert_eq!(unpack_u64_dyn_v2(&enc), Some((val, enc.len())));
+        assert_eq!(pack_u64_dyn_b(val), enc);
+        assert_eq!(unpack_u64_dyn_b(&enc), Some((val, enc.len())));
     }
 }
 
@@ -47,8 +47,8 @@ fn test_i64() {
         (i64::MIN, vec![0x40]),
     ];
     for (val, enc) in cases {
-        assert_eq!(pack_i64_dyn(val), enc);
-        assert_eq!(unpack_i64_dyn(&enc), Some((val, enc.len())));
+        assert_eq!(pack_i64_dyn_a(val), enc);
+        assert_eq!(unpack_i64_dyn_a(&enc), Some((val, enc.len())));
     }
 }
 
@@ -64,8 +64,8 @@ fn test_i64_v2() {
         (i64::MIN, vec![0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe]),
     ];
     for (val, enc) in cases {
-        assert_eq!(pack_i64_dyn_v2(val), enc);
-        assert_eq!(unpack_i64_dyn_v2(&enc), Some((val, enc.len())));
+        assert_eq!(pack_i64_dyn_b(val), enc);
+        assert_eq!(unpack_i64_dyn_b(&enc), Some((val, enc.len())));
     }
 }
 
@@ -78,15 +78,40 @@ fn test_truncated() {
     ];
     for enc in truncated {
         assert!(unpack_u64_dyn(&enc).is_none());
-        assert!(unpack_i64_dyn(&enc).is_none());
-        assert!(unpack_i64_dyn_v2(&enc).is_none());
-        assert!(unpack_u64_dyn_v2(&enc).is_none());
+        assert!(unpack_i64_dyn_a(&enc).is_none());
+        assert!(unpack_i64_dyn_b(&enc).is_none());
+        assert!(unpack_u64_dyn_b(&enc).is_none());
     }
 }
 
 #[test]
 fn test_wrap_mod_64() {
     let enc = vec![0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe];
-    assert_eq!(unpack_u64_dyn_v2(&enc), Some((0x7f, 9)));
-    assert_eq!(unpack_i64_dyn_v2(&enc), Some((-64, 9)));
+    assert_eq!(unpack_u64_dyn_b(&enc), Some((0x7f, 9)));
+    assert_eq!(unpack_i64_dyn_b(&enc), Some((-64, 9)));
+}
+
+#[test]
+#[allow(deprecated)]
+fn test_deprecated_aliases() {
+    let canonical_u = pack_u64_dyn_b(42069);
+    assert_eq!(canonical_u, pack_u64_dyn_v2(42069));
+    assert_eq!(
+        unpack_u64_dyn_v2(&canonical_u),
+        Some((42069, canonical_u.len()))
+    );
+
+    let canonical_a = pack_i64_dyn_a(-123);
+    assert_eq!(canonical_a, pack_i64_dyn(-123));
+    assert_eq!(
+        unpack_i64_dyn(&canonical_a),
+        Some((-123, canonical_a.len()))
+    );
+
+    let canonical_b = pack_i64_dyn_b(-456);
+    assert_eq!(canonical_b, pack_i64_dyn_v2(-456));
+    assert_eq!(
+        unpack_i64_dyn_v2(&canonical_b),
+        Some((-456, canonical_b.len()))
+    );
 }
