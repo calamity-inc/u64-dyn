@@ -1,5 +1,20 @@
 Variable-length 64-bit integer codings that take at most 9 bytes.
 
+- Unsigned
+  - [u64_dyn](#u64_dyn)
+  - [u64_dyn_b](#u64_dyn_b)
+  - [u64_dyn_p](#u64_dyn_p)
+  - [u64_dyn_bp](#u64_dyn_bp)
+- Signed
+  - [i64_dyn_a](#i64_dyn_a)
+  - [i64_dyn_b](#i64_dyn_b)
+  - [i64_dyn_bp](#i64_dyn_bp)
+
+### Guide
+- Biased variants (indicated with a `b`) need less bytes to encode certain sequences, but also leave room for multiple 9-byte sequences producing the same value (modulo 2^64).
+- Prefixed variants (indicated with a `p`) are a lot faster to read due to the first byte indicating the sequence length.
+- For signed codings, there is also `a` to indicate arithmetic negation.
+
 ## Implementations
 
 - [C](c)
@@ -26,7 +41,7 @@ Value | Encoded As
 
 ### u64_dyn_b
 
-Same as u64_dyn but for each continuation bit (i.e., "another byte follows"), 1 is subtracted from the remaining value after shifting. Decoding compensates by adding a bias.
+Same as [u64_dyn](#u64_dyn) but for each continuation bit (i.e., "another byte follows"), 1 is subtracted from the remaining value after shifting. Decoding compensates by adding a bias.
 
 Value | Encoded As
 ------|-----------
@@ -36,6 +51,40 @@ Value | Encoded As
 `0xffffffffffffffff` | `ff fe fe fe fe fe fe fe fe`
 
 Note that there are contrived sequences for which `pack_u64_dyn_b(unpack_u64_dyn_b(seq)) == seq` does not hold, e.g. `ff ff fe fe fe fe fe fe fe`.
+
+### u64_dyn_p
+
+Same as [u64_dyn](#u64_dyn) but the continuation bits are all moved to the first byte:
+```
+0xxxxxxx
+10xxxxxx xxxxxxxx
+110xxxxx xxxxxxxx xxxxxxxx
+1110xxxx xxxxxxxx xxxxxxxx xxxxxxxx
+11110xxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx
+111110xx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx
+1111110x xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx
+11111110 xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx
+11111111 xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx
+```
+Prefixing does not change the length of coded values.
+
+Value | Encoded As
+------|-----------
+`0x7f` | `7f`
+`0x80` | `80 02`
+`0x4000` | `C0 80 02`
+`0xffffffffffffffff` | `ff ff ff ff ff ff ff ff ff`
+
+### u64_dyn_bp
+
+This coding uses the biasing of [u64_dyn_b](#u64_dyn_b) and the prefixing of [u64_dyn_p](#u64_dyn_p).
+
+Value | Encoded As
+------|-----------
+`0x7f` | `7f`
+`0x80` | `80 00`
+`0x4000` | `80 fe`
+`0xffffffffffffffff` | `ff 7f bf df ef f7 fb fd fe`
 
 ### i64_dyn_a
 
@@ -51,7 +100,7 @@ This is rejoined into a u64 with neg in bit 6:
 ```
 u64 := (neg << 6) | ((u63 & ~0x3f) << 1) | (u63 & 0x3f)
 ```
-This value is then encoded using u64_dyn. When decoding, if `neg` is set the original value is recovered with:
+This value is then encoded using [u64_dyn](#u64_dyn). When decoding, if `neg` is set the original value is recovered with:
 ```
 i64 := ~(u63 - 1) | (1 << 63)
 ```
@@ -77,7 +126,7 @@ This is rejoined into a u64 with neg in bit 6:
 ```
 u64 := (neg << 6) | ((u63 & ~0x3f) << 1) | (u63 & 0x3f)
 ```
-This value is then encoded using u64_dyn_b. Decoding is the same in reverse.
+This value is then encoded using [u64_dyn_b](#u64_dyn_b). Decoding is the same in reverse.
 
 Value | Encoded As
 ------|-----------
@@ -85,3 +134,14 @@ Value | Encoded As
 `0x2000` | `80 7f`
 `-1` | `40`
 `-9223372036854775808` | `ff fe fe fe fe fe fe fe fe`
+
+### i64_dyn_bp
+
+The i64 value is converted to u64 just like in [i64_dyn_b](#i64_dyn_b). However, in this case the u64 is coded with [u64_dyn_bp](#u64_dyn_bp).
+
+Value | Encoded As
+------|-----------
+`42` | `2a`
+`0x2000` | `80 fe`
+`-1` | `40`
+`-9223372036854775808` | `ff 7f bf df ef f7 fb fd fe`
