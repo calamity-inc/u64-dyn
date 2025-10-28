@@ -1,5 +1,9 @@
 #include "u64_dyn.h"
 
+#if defined(_MSC_VER)
+#include <intrin.h>
+#endif
+
 size_t pack_u64_dyn(uint8_t out[9], uint64_t v) {
   size_t i = 0;
   while (i != 8) {
@@ -134,6 +138,66 @@ bool unpack_i64_dyn_b(const uint8_t *in_data, size_t in_size, int64_t *out_v,
   const uint64_t neg = (u >> 6) & 1;         // check bit 6
   u = ((u >> 1) & ~0x3fULL) | (u & 0x3fULL); // remove bit 6
   int64_t v = u ^ (0xffffffffffffffff * neg);
+  if (out_v) {
+    *out_v = v;
+  }
+  return true;
+}
+
+size_t pack_u64_dyn_p(uint8_t out[9], uint64_t v) {
+  const size_t byte_length = 1 + (v >= 1ull << 7) + (v >= 1ull << 14) +
+                             (v >= 1ull << 21) + (v >= 1ull << 28) +
+                             (v >= 1ull << 35) + (v >= 1ull << 42) +
+                             (v >= 1ull << 49) + (v >= 1ull << 56);
+
+  const size_t first_byte_value_bits = (byte_length < 8) * (8 - byte_length);
+  const size_t first_byte_prefix_bits = byte_length - 1;
+
+  out[0] = (0xff << (8 - first_byte_prefix_bits)) |
+           (v & ((1 << first_byte_value_bits) - 1));
+  v >>= first_byte_value_bits;
+  out[1] = v & 0xff;
+  out[2] = (v >> 8) & 0xff;
+  out[3] = (v >> 16) & 0xff;
+  out[4] = (v >> 24) & 0xff;
+  out[5] = (v >> 32) & 0xff;
+  out[6] = (v >> 40) & 0xff;
+  out[7] = (v >> 48) & 0xff;
+  out[8] = (v >> 56) & 0xff;
+  return byte_length;
+}
+
+static unsigned int getNumLeadingZeros(uint32_t mask) {
+#if defined(_MSC_VER)
+  unsigned long ret;
+  if (_BitScanReverse(&ret, mask)) {
+    return 31 - ret;
+  }
+#else
+  if (mask != 0) {
+    return __builtin_clz(mask);
+  }
+#endif
+  return 32;
+}
+
+bool unpack_u64_dyn_p(const uint8_t *in_data, size_t in_size, uint64_t *out_v,
+                      size_t *out_size) {
+  if (!in_size) {
+    return false;
+  }
+  const size_t byte_length =
+      1 + (getNumLeadingZeros((uint32_t)((uint8_t)~in_data[0])) - 24);
+  const size_t first_byte_value_bits = (byte_length < 8) * (8 - byte_length);
+  if (byte_length > in_size) {
+    return false;
+  }
+  uint64_t v = 0;
+  for (size_t i = 1; i != byte_length; ++i) {
+    v |= (uint64_t)in_data[i] << ((i - 1) * 8);
+  }
+  v <<= first_byte_value_bits;
+  v |= (in_data[0] & ((1 << first_byte_value_bits) - 1));
   if (out_v) {
     *out_v = v;
   }

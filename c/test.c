@@ -1,8 +1,8 @@
 #include "u64_dyn.h"
 
 #include <assert.h>
+#include <stdio.h>
 #include <string.h> // memcmp
-// #include <stdio.h>
 
 struct UPair {
   uint64_t v;
@@ -102,6 +102,26 @@ int main() {
     }
   }
   {
+    struct UPair pairs[] = {
+        {0, "\x00", 1},
+        {0x7f, "\x7F", 1},
+        {0x80, "\x80\x02", 2},
+        {1337, "\xB9\x14", 2},
+        {42069, "\xD5\x22\x05", 3},
+        {0xffffffffffffffff, "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF", 9},
+        {0x8000000000000000, "\xFF\x00\x00\x00\x00\x00\x00\x00\x80", 9},
+    };
+    for (size_t i = 0; i != COUNT(pairs); ++i) {
+      const struct UPair *pair = &pairs[i];
+      // printf("%llu\n", pair->v);
+      assert(pack_u64_dyn_p(data, pair->v) == pair->s);
+      assert(memcmp(data, pair->d, pair->s) == 0);
+      uint64_t out_v;
+      assert(unpack_u64_dyn_p(data, pair->s, &out_v, &out_size));
+      assert(out_v == pair->v);
+    }
+  }
+  {
     const uint8_t bad1[] = {0x80};
     const uint8_t bad2[] = {0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80};
     struct {
@@ -123,6 +143,24 @@ int main() {
     }
   }
   {
+    const uint8_t bad1[] = {0x80};
+    const uint8_t bad2[] = {0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    struct {
+      const uint8_t *d;
+      size_t s;
+    } bads[] = {
+        {NULL, 0},
+        {bad1, sizeof(bad1)},
+        {bad2, sizeof(bad2)},
+    };
+    for (size_t i = 0; i != COUNT(bads); ++i) {
+      uint64_t u;
+      // int64_t v;
+      size_t used;
+      assert(!unpack_u64_dyn_p(bads[i].d, bads[i].s, &u, &used));
+    }
+  }
+  {
     const uint8_t enc[] = {0xFF, 0xFF, 0xFE, 0xFE, 0xFE,
                            0xFE, 0xFE, 0xFE, 0xFE};
     uint64_t u;
@@ -133,5 +171,6 @@ int main() {
     assert(unpack_i64_dyn_b(enc, sizeof(enc), &v, &used));
     assert(v == -64 && used == sizeof(enc));
   }
+  printf("All tests ran successfully.\n");
   return 0;
 }
