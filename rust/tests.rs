@@ -53,6 +53,23 @@ fn test_u64_p() {
 }
 
 #[test]
+fn test_u64_bp() {
+    let cases = [
+        (0u64, vec![0x00]),
+        (0x7f, vec![0x7f]),
+        (0x80, vec![0x80, 0x00]),
+        (1337, vec![0xb9, 0x12]),
+        (42069, vec![0xd5, 0x1e, 0x03]),
+        (0xffffffffffffffff, vec![0xff, 0x7f, 0xbf, 0xdf, 0xef, 0xf7, 0xfb, 0xfd, 0xfe]),
+        (0x8000000000000000, vec![0xff, 0x80, 0xbf, 0xdf, 0xef, 0xf7, 0xfb, 0xfd, 0x7e]),
+    ];
+    for (val, enc) in cases {
+        assert_eq!(pack_u64_dyn_bp(val), enc);
+        assert_eq!(unpack_u64_dyn_bp(&enc), Some((val, enc.len())));
+    }
+}
+
+#[test]
 fn test_i64_a() {
     let cases = [
         (0i64, vec![0x00]),
@@ -110,6 +127,7 @@ fn test_truncated_p() {
     ];
     for enc in truncated {
         assert!(unpack_u64_dyn_p(&enc).is_none());
+        assert!(unpack_u64_dyn_bp(&enc).is_none());
     }
 }
 
@@ -117,5 +135,6 @@ fn test_truncated_p() {
 fn test_overflow() {
     let enc = vec![0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe];
     assert!(unpack_u64_dyn_b(&enc).is_none());
+    assert!(unpack_u64_dyn_bp(&enc).is_none());
     assert!(unpack_i64_dyn_b(&enc).is_none());
 }

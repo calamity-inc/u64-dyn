@@ -1,3 +1,23 @@
+fn get_bias(mut byte_length: usize) -> u64 {
+    #[cfg(target_feature = "bmi2")]
+    {
+        let biasbits = byte_length.checked_sub(1).unwrap_or(0);
+        let biasmask = (1u64 << biasbits) - 1;
+        core::arch::x86_64::_pdep_u64(biasmask, 0x0102040810204080u64)
+    }
+
+    #[cfg(not(target_feature = "bmi2"))]
+    {
+        let mut bias: u64 = 0;
+        while byte_length > 1 {
+            byte_length -= 1;
+            bias += 1;
+            bias <<= 7;
+        }
+        bias
+    }
+}
+
 pub fn pack_u64_dyn(mut v: u64) -> Vec<u8> {
     let mut out = Vec::with_capacity(9);
     for _ in 0..8 {
@@ -92,7 +112,8 @@ pub fn pack_u64_dyn_p(mut v: u64) -> Vec<u8> {
         + (v >= 1u64 << 35) as usize
         + (v >= 1u64 << 42) as usize
         + (v >= 1u64 << 49) as usize
-        + (v >= 1u64 << 56) as usize;
+        + (v >= 1u64 << 56) as usize
+        ;
 
     let first_byte_value_bits = 8usize.checked_sub(byte_length).unwrap_or(0);
     let first_byte_prefix_bits = byte_length - 1;
@@ -121,6 +142,57 @@ pub fn unpack_u64_dyn_p(data: &[u8]) -> Option<(u64, usize)> {
     }
     v <<= first_byte_value_bits;
     v |= (data[0] & ((1 << first_byte_value_bits) - 1)) as u64;
+    Some((v, byte_length))
+}
+
+pub fn pack_u64_dyn_bp(mut v: u64) -> Vec<u8> {
+    let byte_length = 1
+        + (v >= 128u64) as usize
+        + (v >= 16512u64) as usize
+        + (v >= 2113664u64) as usize
+        + (v >= 270549120u64) as usize
+        + (v >= 34630287488u64) as usize
+        + (v >= 4432676798592u64) as usize
+        + (v >= 567382630219904u64) as usize
+        + (v >= 72624976668147840u64) as usize
+        ;
+
+    let first_byte_value_bits = 8usize.checked_sub(byte_length).unwrap_or(0);
+    let first_byte_prefix_bits = byte_length - 1;
+
+    v -= get_bias(byte_length);
+
+    let mut out: Vec<u8> = Vec::with_capacity(byte_length);
+    out.push(((0xff << (8 - first_byte_prefix_bits)) | (v & ((1 << first_byte_value_bits) - 1))) as u8);
+    v >>= first_byte_value_bits;
+    for i in 0..(byte_length - 1) {
+        out.push(((v >> (i * 8)) & 0xff) as u8);
+    }
+    out
+}
+
+pub fn unpack_u64_dyn_bp(data: &[u8]) -> Option<(u64, usize)> {
+    if data.len() == 0 {
+        return None;
+    }
+    let byte_length = 1 + ((((!data[0]) as u32).leading_zeros() as usize) - 24);
+    let first_byte_value_bits = 8usize.checked_sub(byte_length).unwrap_or(0);
+    if byte_length > data.len() {
+        return None;
+    }
+    let mut v = 0u64;
+    for i in 1..byte_length {
+        v |= (data[i] as u64) << ((i - 1) * 8);
+    }
+    v <<= first_byte_value_bits;
+    v |= (data[0] & ((1 << first_byte_value_bits) - 1)) as u64;
+
+    let bias = get_bias(byte_length);
+    if v > 0xffffffffffffffff - bias {
+        return None;
+    }
+    v += bias;
+
     Some((v, byte_length))
 }
 
