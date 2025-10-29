@@ -3,6 +3,7 @@
 #if defined(_MSC_VER)
 #include <intrin.h>
 #endif
+#include <immintrin.h>
 
 static unsigned int count_leading_zeroes(uint32_t mask) {
 #if defined(_MSC_VER)
@@ -16,6 +17,21 @@ static unsigned int count_leading_zeroes(uint32_t mask) {
   }
 #endif
   return 32;
+}
+
+static uint64_t get_bias(size_t byte_length) {
+#ifdef __BMI2__
+  const size_t biasbits = (byte_length >= 2) * (byte_length - 1);
+  const uint64_t biasmask = ((1u << biasbits) - 1u);
+  return _pdep_u64(biasmask, 0x102040810204080ull);
+#else
+  uint64_t bias = 0;
+  while (--byte_length) {
+    bias += 1;
+    bias <<= 7;
+  }
+  return bias;
+#endif
 }
 
 size_t pack_u64_dyn(uint8_t out[9], uint64_t v) {
@@ -208,6 +224,62 @@ bool unpack_u64_dyn_p(const uint8_t *in_data, size_t in_size, uint64_t *out_v,
     *out_size = byte_length;
   }
   return true;
+}
+
+size_t pack_u64_dyn_bp(uint8_t out[9], uint64_t v) {
+  const size_t byte_length =
+      1 + (v >= 128ull) + (v >= 16512ull) + (v >= 2113664ull) +
+      (v >= 270549120ull) + (v >= 34630287488ull) + (v >= 4432676798592ull) +
+      (v >= 567382630219904ull) + (v >= 72624976668147840ull);
+
+  const size_t first_byte_value_bits = (byte_length < 8) * (8 - byte_length);
+  const size_t first_byte_prefix_bits = byte_length - 1;
+
+  v -= get_bias(byte_length);
+
+  out[0] = (0xff << (8 - first_byte_prefix_bits)) |
+           (v & ((1 << first_byte_value_bits) - 1));
+  v >>= first_byte_value_bits;
+  out[1] = v & 0xff;
+  out[2] = (v >> 8) & 0xff;
+  out[3] = (v >> 16) & 0xff;
+  out[4] = (v >> 24) & 0xff;
+  out[5] = (v >> 32) & 0xff;
+  out[6] = (v >> 40) & 0xff;
+  out[7] = (v >> 48) & 0xff;
+  out[8] = (v >> 56) & 0xff;
+  return byte_length;
+}
+
+bool unpack_u64_dyn_bp(const uint8_t *in_data, size_t in_size, uint64_t *out_v,
+                       size_t *out_size) {
+  if (!in_size) {
+    return false;
+  }
+  const size_t byte_length =
+      1 + (count_leading_zeroes((uint32_t)((uint8_t)~in_data[0])) - 24);
+  const size_t first_byte_value_bits = (byte_length < 8) * (8 - byte_length);
+  if (byte_length > in_size) {
+    return false;
+  }
+  uint64_t v = 0;
+  for (size_t i = 1; i != byte_length; ++i) {
+    v |= (uint64_t)in_data[i] << ((i - 1) * 8);
+  }
+  v <<= first_byte_value_bits;
+  v |= (in_data[0] & ((1 << first_byte_value_bits) - 1));
+
+  const uint64_t bias = get_bias(byte_length);
+  bool valid = v <= 0xffffffffffffffff - bias;
+  v += bias;
+
+  if (out_v) {
+    *out_v = v;
+  }
+  if (out_size) {
+    *out_size = byte_length;
+  }
+  return valid;
 }
 
 size_t pack_u64_dyn_v2(uint8_t out[9], uint64_t v) {

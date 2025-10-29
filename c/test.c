@@ -126,6 +126,27 @@ int main() {
       assert(out_size == pair->s);
     }
   }
+  {
+    struct UPair pairs[] = {
+        {0, "\x00", 1},
+        {0x7f, "\x7F", 1},
+        {0x80, "\x80\x00", 2},
+        {1337, "\xB9\x12", 2},
+        {42069, "\xD5\x1E\x03", 3},
+        {0xffffffffffffffff, "\xFF\x7F\xBF\xDF\xEF\xF7\xFB\xFD\xFE", 9},
+        {0x8000000000000000, "\xFF\x80\xBF\xDF\xEF\xF7\xFB\xFD\x7E", 9},
+    };
+    for (size_t i = 0; i != COUNT(pairs); ++i) {
+      const struct UPair *pair = &pairs[i];
+      // printf("%llu\n", pair->v);
+      assert(pack_u64_dyn_bp(data, pair->v) == pair->s);
+      assert(memcmp(data, pair->d, pair->s) == 0);
+      uint64_t out_v;
+      assert(unpack_u64_dyn_bp(data, pair->s, &out_v, &out_size));
+      assert(out_v == pair->v);
+      assert(out_size == pair->s);
+    }
+  }
   // Unfinished data
   {
     const uint8_t bad1[] = {0x80};
@@ -173,6 +194,7 @@ int main() {
     uint64_t u;
     size_t used;
     assert(!unpack_u64_dyn_b(enc, sizeof(enc), &u, &used));
+    assert(!unpack_u64_dyn_bp(enc, sizeof(enc), &u, &used));
   }
   printf("All tests ran successfully.\n");
   return 0;

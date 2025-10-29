@@ -24,3 +24,13 @@ jobs:
       - name: Run tests
         working-directory: c
         run: ./test
+  test-native:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        working-directory: c
+        run: gcc test.c u64_dyn.c -o test -march=native
+      - name: Run tests
+        working-directory: c
+        run: ./test

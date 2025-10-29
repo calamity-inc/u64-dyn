@@ -25,6 +25,10 @@ size_t pack_u64_dyn_p(uint8_t out[9], uint64_t v);
 bool unpack_u64_dyn_p(const uint8_t *in_data, size_t in_size, uint64_t *out_v,
                       size_t *out_size);
 
+size_t pack_u64_dyn_bp(uint8_t out[9], uint64_t v);
+bool unpack_u64_dyn_bp(const uint8_t *in_data, size_t in_size, uint64_t *out_v,
+                       size_t *out_size);
+
 // Renamed to pack_u64_dyn_b
 size_t pack_u64_dyn_v2(uint8_t out[9], uint64_t v);
 
