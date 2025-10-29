@@ -83,6 +83,47 @@ pub fn unpack_u64_dyn_b(data: &[u8]) -> Option<(u64, usize)> {
     Some((v, used))
 }
 
+pub fn pack_u64_dyn_p(mut v: u64) -> Vec<u8> {
+    let byte_length = 1
+        + (v >= 1u64 << 7) as usize
+        + (v >= 1u64 << 14) as usize
+        + (v >= 1u64 << 21) as usize
+        + (v >= 1u64 << 28) as usize
+        + (v >= 1u64 << 35) as usize
+        + (v >= 1u64 << 42) as usize
+        + (v >= 1u64 << 49) as usize
+        + (v >= 1u64 << 56) as usize;
+
+    let first_byte_value_bits = 8usize.checked_sub(byte_length).unwrap_or(0);
+    let first_byte_prefix_bits = byte_length - 1;
+
+    let mut out: Vec<u8> = Vec::with_capacity(byte_length);
+    out.push(((0xff << (8 - first_byte_prefix_bits)) | (v & ((1 << first_byte_value_bits) - 1))) as u8);
+    v >>= first_byte_value_bits;
+    for i in 0..(byte_length - 1) {
+        out.push(((v >> (i * 8)) & 0xff) as u8);
+    }
+    out
+}
+
+pub fn unpack_u64_dyn_p(data: &[u8]) -> Option<(u64, usize)> {
+    if data.len() == 0 {
+        return None;
+    }
+    let byte_length = 1 + ((((!data[0]) as u32).leading_zeros() as usize) - 24);
+    let first_byte_value_bits = 8usize.checked_sub(byte_length).unwrap_or(0);
+    if byte_length > data.len() {
+        return None;
+    }
+    let mut v = 0u64;
+    for i in 1..byte_length {
+        v |= (data[i] as u64) << ((i - 1) * 8);
+    }
+    v <<= first_byte_value_bits;
+    v |= (data[0] & ((1 << first_byte_value_bits) - 1)) as u64;
+    Some((v, byte_length))
+}
+
 pub fn pack_i64_dyn_a(v: i64) -> Vec<u8> {
     let mut u = v as u64;
     let neg = (v < 0) as u64;
