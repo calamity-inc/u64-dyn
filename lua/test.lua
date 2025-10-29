@@ -81,10 +81,7 @@ end
 
 do
     local enc = "\xFF\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE"
-    local v, off = unpack_u64_dyn_b(enc)
-    assert(v == 0x7F)
-    assert(off == #enc + 1)
-    local sv, off2 = unpack_i64_dyn_b(enc)
-    assert(sv == -64)
-    assert(off2 == #enc + 1)
+    assert(not pcall(unpack_u64_dyn_b, enc))
+    assert(not pcall(unpack_u64_dyn_bp, enc))
+    assert(not pcall(unpack_i64_dyn_b, enc))
 end

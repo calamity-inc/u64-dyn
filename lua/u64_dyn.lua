@@ -105,7 +105,7 @@ function pack_u64_dyn_b(v)
         v = v >> 7
         if v ~= 0 then
             out[#out + 1] = string.char(cur | 0x80)
-            v = v - 1 -- v2
+            v = v - 1 -- bias
         else
             out[#out + 1] = string.char(cur)
             return table.concat(out)
@@ -119,18 +119,24 @@ function unpack_u64_dyn_b(str, i)
     i = i or 1
     local v = 0
     local bits = 0
+    local bias = 0
     for _ = 1, 8 do
         local b = str:byte(i) i = i + 1
         v = v + ((b & 0x7f) << bits)
         if (b >> 7) == 0 then
-            return v, i
+            goto apply_bias
         end
         bits = bits + 7
-        v = v + (1 << bits) -- v2
+        bias = bias + (1 << bits)
     end
-    local b = str:byte(i) i = i + 1
-    v = v + (b << 56)
-    return v, i
+    do
+        local b = str:byte(i) i = i + 1
+        v = v + (b << 56)
+    end
+::apply_bias::
+    local lim = 0xffffffffffffffff - bias
+    assert(math.ult(v, lim) or v == lim)
+    return v + bias, i
 end
 
 function pack_i64_dyn_b(v)
