@@ -127,10 +127,6 @@ function unpack_u64_dyn_bp(str, i)
     local byte_length = prefix_bits + 1
     local first_byte_value_bits = byte_length < 8 and (8 - byte_length) or 0
 
-    if i + byte_length - 1 > #str then
-        error("u64_dyn_bp: truncated input")
-    end
-
     local v = 0
     for idx = 1, byte_length - 1 do
         local b = str:byte(i + idx)
