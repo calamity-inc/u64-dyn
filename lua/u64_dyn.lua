@@ -1,3 +1,12 @@
+local function get_bias(byte_length)
+    local bias = 0
+    while byte_length > 1 do
+        byte_length = byte_length - 1
+        bias = (bias + 1) << 7
+    end
+    return bias
+end
+
 function pack_u64_dyn(v)
     local out = {}
     for _ = 1, 8 do
@@ -55,6 +64,33 @@ function pack_u64_dyn_p(u)
     return table.concat(out)
 end
 
+function pack_u64_dyn_bp(u)
+    local byte_length = 1
+    if not math.ult(u, 128) then byte_length = byte_length + 1 end
+    if not math.ult(u, 16512) then byte_length = byte_length + 1 end
+    if not math.ult(u, 2113664) then byte_length = byte_length + 1 end
+    if not math.ult(u, 270549120) then byte_length = byte_length + 1 end
+    if not math.ult(u, 34630287488) then byte_length = byte_length + 1 end
+    if not math.ult(u, 4432676798592) then byte_length = byte_length + 1 end
+    if not math.ult(u, 567382630219904) then byte_length = byte_length + 1 end
+    if not math.ult(u, 72624976668147840) then byte_length = byte_length + 1 end
+
+    local first_byte_value_bits = byte_length < 8 and (8 - byte_length) or 0
+    local first_byte_prefix_bits = byte_length - 1
+
+    u = u - get_bias(byte_length)
+
+    local first_byte = ((0xff << (8 - first_byte_prefix_bits)) & 0xff)
+        | (u & ((1 << first_byte_value_bits) - 1))
+    local rem = u >> first_byte_value_bits
+
+    local out = { string.char(first_byte & 0xff) }
+    for idx = 1, byte_length - 1 do
+        out[#out + 1] = string.char((rem >> ((idx - 1) * 8)) & 0xff)
+    end
+    return table.concat(out)
+end
+
 function unpack_u64_dyn_p(str, i)
     i = i or 1
     local first_byte = str:byte(i)
@@ -77,6 +113,38 @@ function unpack_u64_dyn_p(str, i)
     v = v | (first_byte & value_mask)
 
     return v, i + byte_length
+end
+
+function unpack_u64_dyn_bp(str, i)
+    i = i or 1
+    local first_byte = str:byte(i)
+
+    local prefix_bits = 0
+    while prefix_bits < 8 and (first_byte & (0x80 >> prefix_bits)) ~= 0 do
+        prefix_bits = prefix_bits + 1
+    end
+
+    local byte_length = prefix_bits + 1
+    local first_byte_value_bits = byte_length < 8 and (8 - byte_length) or 0
+
+    if i + byte_length - 1 > #str then
+        error("u64_dyn_bp: truncated input")
+    end
+
+    local v = 0
+    for idx = 1, byte_length - 1 do
+        local b = str:byte(i + idx)
+        v = v | (b << ((idx - 1) * 8))
+    end
+    v = v << first_byte_value_bits
+    local value_mask = first_byte_value_bits == 0 and 0 or ((1 << first_byte_value_bits) - 1)
+    v = v | (first_byte & value_mask)
+
+    local bias = get_bias(byte_length)
+    local limit = 0xffffffffffffffff - bias
+    assert(math.ult(v, limit) or v == limit)
+
+    return v + bias, i + byte_length
 end
 
 function pack_i64_dyn_a(v)
