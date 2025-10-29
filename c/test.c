@@ -126,6 +126,7 @@ int main() {
       assert(out_size == pair->s);
     }
   }
+  // Unfinished data
   {
     const uint8_t bad1[] = {0x80};
     const uint8_t bad2[] = {0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80};
@@ -165,16 +166,13 @@ int main() {
       assert(!unpack_u64_dyn_p(bads[i].d, bads[i].s, &u, &used));
     }
   }
+  // Invalid data
   {
     const uint8_t enc[] = {0xFF, 0xFF, 0xFE, 0xFE, 0xFE,
                            0xFE, 0xFE, 0xFE, 0xFE};
     uint64_t u;
-    int64_t v;
     size_t used;
-    assert(unpack_u64_dyn_b(enc, sizeof(enc), &u, &used));
-    assert(u == 0x7F && used == sizeof(enc));
-    assert(unpack_i64_dyn_b(enc, sizeof(enc), &v, &used));
-    assert(v == -64 && used == sizeof(enc));
+    assert(!unpack_u64_dyn_b(enc, sizeof(enc), &u, &used));
   }
   printf("All tests ran successfully.\n");
   return 0;

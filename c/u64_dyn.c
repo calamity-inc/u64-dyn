@@ -85,6 +85,7 @@ bool unpack_u64_dyn_b(const uint8_t *in_data, size_t in_size, uint64_t *out_v,
   uint64_t v = 0;
   int bits = 0;
   size_t used = 0;
+  uint64_t bias = 0;
   while (1) {
     if (used >= in_size) {
       return false;
@@ -99,15 +100,17 @@ bool unpack_u64_dyn_b(const uint8_t *in_data, size_t in_size, uint64_t *out_v,
       break;
     }
     bits += 7;
-    v += (uint64_t)1 << bits; // v2
+    bias += (uint64_t)1 << bits;
   }
+  bool valid = v <= 0xffffffffffffffff - bias;
+  v += bias;
   if (out_size) {
     *out_size = used;
   }
   if (out_v) {
     *out_v = v;
   }
-  return true;
+  return valid;
 }
 
 size_t pack_i64_dyn_a(uint8_t out[9], int64_t v) {
