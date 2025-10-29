@@ -2,7 +2,6 @@
 
 function pack_u64_dyn(v) {
   if (typeof v !== "bigint") v = BigInt(v);
-  v = BigInt.asUintN(64, v);
   const out = new Uint8Array(9);
   let length = 0;
   for (; length < 8; length++) {
@@ -28,19 +27,18 @@ function unpack_u64_dyn(buf, offset = 0) {
     const b = BigInt(buf[offset + used]);
     v += (b & 0x7fn) << bits;
     if ((b & 0x80n) === 0n) {
-      return [BigInt.asUintN(64, v), offset + used + 1];
+      return [v, offset + used + 1];
     }
     bits += 7n;
   }
   if (offset + used >= buf.length) throw new RangeError("Insufficient data");
   const b = BigInt(buf[offset + used]);
   v += b << 56n;
-  return [BigInt.asUintN(64, v), offset + used + 1];
+  return [v, offset + used + 1];
 }
 
 function pack_u64_dyn_b(v) {
   if (typeof v !== "bigint") v = BigInt(v);
-  v = BigInt.asUintN(64, v);
   const out = new Uint8Array(9);
   let length = 0;
   for (; length < 8; length++) {
@@ -48,7 +46,7 @@ function pack_u64_dyn_b(v) {
     v >>= 7n;
     if (v !== 0n) {
       out[length] = Number(cur | 0x80n);
-      v -= 1n; // v2
+      v -= 1n; // bias
     } else {
       out[length] = Number(cur);
       return out.subarray(0, length + 1);
@@ -62,20 +60,28 @@ function unpack_u64_dyn_b(buf, offset = 0) {
   let v = 0n;
   let bits = 0n;
   let used = 0;
-  for (; used < 8; used++) {
-    if (offset + used >= buf.length) throw new RangeError("Insufficient data");
-    const b = BigInt(buf[offset + used]);
+  let bias = 0n;
+  while (true) {
+    if (offset + used >= buf.length) {
+      throw new RangeError("Insufficient data");
+    }
+    const b = BigInt(buf[offset + used++]);
+    if (used == 9) {
+      v += b << 56n;
+      break;
+    }
     v += (b & 0x7fn) << bits;
     if ((b & 0x80n) === 0n) {
-      return [BigInt.asUintN(64, v), offset + used + 1];
+      break;
     }
     bits += 7n;
-    v += 1n << bits; // v2
+    bias += 1n << bits;
   }
-  if (offset + used >= buf.length) throw new RangeError("Insufficient data");
-  const b = BigInt(buf[offset + used]);
-  v += b << 56n;
-  return [BigInt.asUintN(64, v), offset + used + 1];
+  if (v > 0xffffffffffffffffn - bias) {
+    throw new RangeError("Invalid data");
+  }
+  v += bias;
+  return [v, offset + used];
 }
 
 function pack_i64_dyn_a(v) {

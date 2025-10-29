@@ -134,14 +134,12 @@ for (const enc of truncatedCases) {
   const enc = Uint8Array.from([
     0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe,
   ]);
-  assert.deepStrictEqual(
-    unpack_u64_dyn_b(enc),
-    [0x7fn, 9],
-    "unpack_u64_dyn_b should wrap modulo 2^64",
+  expectThrow(
+    () => unpack_u64_dyn_b(enc),
+    "unpack_u64_dyn_b should throw on invalid data",
   );
-  assert.deepStrictEqual(
-    unpack_i64_dyn_b(enc),
-    [-64n, 9],
-    "unpack_i64_dyn_b should wrap modulo 2^64",
+  expectThrow(
+    () => unpack_i64_dyn_b(enc),
+    "unpack_i64_dyn_b should throw on invalid data",
   );
 }
