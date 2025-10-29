@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/u64_dyn.php';
 
-$tests_u64 = [
+$tests = [
     0 => "\x00",
     0x7f => "\x7F",
     0x80 => "\x80\x01",
@@ -10,7 +10,7 @@ $tests_u64 = [
     -1 => "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
     -9223372036854775808 => "\x80\x80\x80\x80\x80\x80\x80\x80\x80",
 ];
-foreach ($tests_u64 as $val => $enc)
+foreach ($tests as $val => $enc)
 {
     assert(pack_u64_dyn($val) == $enc);
     $offset = 0;
@@ -18,23 +18,7 @@ foreach ($tests_u64 as $val => $enc)
     assert($offset == strlen($enc));
 }
 
-$tests_u64 = [
-    0 => "\x00",
-    0x7f => "\x7F",
-    0x80 => "\x80\x02",
-    0x4000 => "\xC0\x00\x02",
-    0x123456789ABCDEF => "\xFF\xEF\xCD\xAB\x89\x67\x45\x23\x01",
-    -1 => "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
-];
-foreach ($tests_u64 as $val => $enc)
-{
-    assert(pack_u64_dyn_p($val) == $enc);
-    $offset = 0;
-    assert(unpack_u64_dyn_p($enc, $offset) == $val);
-    assert($offset == strlen($enc));
-}
-
-$tests_u64 = [
+$tests = [
     0 => "\x00",
     0x7f => "\x7F",
     0x80 => "\x80\x00",
@@ -44,7 +28,7 @@ $tests_u64 = [
     -1 => "\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE\xFE",
     -9223372036854775808 => "\x80\xFF\xFE\xFE\xFE\xFE\xFE\xFE\x7E",
 ];
-foreach ($tests_u64 as $val => $enc)
+foreach ($tests as $val => $enc)
 {
     assert(pack_u64_dyn_b($val) == $enc);
     $offset = 0;
@@ -52,7 +36,23 @@ foreach ($tests_u64 as $val => $enc)
     assert($offset == strlen($enc));
 }
 
-$tests_u64 = [
+$tests = [
+    0 => "\x00",
+    0x7f => "\x7F",
+    0x80 => "\x80\x02",
+    0x4000 => "\xC0\x00\x02",
+    0x123456789ABCDEF => "\xFF\xEF\xCD\xAB\x89\x67\x45\x23\x01",
+    -1 => "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+];
+foreach ($tests as $val => $enc)
+{
+    assert(pack_u64_dyn_p($val) == $enc);
+    $offset = 0;
+    assert(unpack_u64_dyn_p($enc, $offset) == $val);
+    assert($offset == strlen($enc));
+}
+
+$tests = [
     0 => "\x00",
     0x7f => "\x7F",
     0x80 => "\x80\x00",
@@ -62,7 +62,7 @@ $tests_u64 = [
     -1 => "\xFF\x7F\xBF\xDF\xEF\xF7\xFB\xFD\xFE",
     -9223372036854775808 => "\xFF\x80\xBF\xDF\xEF\xF7\xFB\xFD\x7E",
 ];
-foreach ($tests_u64 as $val => $enc)
+foreach ($tests as $val => $enc)
 {
     assert(pack_u64_dyn_bp($val) == $enc);
     $offset = 0;
@@ -70,7 +70,7 @@ foreach ($tests_u64 as $val => $enc)
     assert($offset == strlen($enc));
 }
 
-$tests_i64 = [
+$tests = [
     0 => "\x00",
     0x7f => "\xBF\x01",
     0x80 => "\x80\x02",
@@ -79,7 +79,7 @@ $tests_i64 = [
     -1 => "\x41",
     PHP_INT_MIN => "\x40",
 ];
-foreach ($tests_i64 as $val => $enc)
+foreach ($tests as $val => $enc)
 {
     assert(pack_i64_dyn_a($val) == $enc);
     $offset = 0;
@@ -87,7 +87,7 @@ foreach ($tests_i64 as $val => $enc)
     assert($offset == strlen($enc));
 }
 
-$tests_i64 = [
+$tests = [
     0 => "\x00",
     0x7f => "\xBF\x00",
     0x80 => "\x80\x01",
@@ -96,7 +96,7 @@ $tests_i64 = [
     -1 => "\x40",
     -9223372036854775808 => "\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE\xFE",
 ];
-foreach ($tests_i64 as $val => $enc)
+foreach ($tests as $val => $enc)
 {
     assert(pack_i64_dyn_b($val) == $enc);
     $offset = 0;
@@ -104,7 +104,7 @@ foreach ($tests_i64 as $val => $enc)
     assert($offset == strlen($enc));
 }
 
-$tests_i64 = [
+$tests = [
     0 => "\x00",
     0x7f => "\xBF\x00",
     0x80 => "\x80\x02",
@@ -113,7 +113,7 @@ $tests_i64 = [
     -1 => "\x40",
     -9223372036854775808 => "\xFF\x7F\xBF\xDF\xEF\xF7\xFB\xFD\xFE",
 ];
-foreach ($tests_i64 as $val => $enc)
+foreach ($tests as $val => $enc)
 {
     assert(pack_i64_dyn_bp($val) == $enc);
     $offset = 0;

@@ -93,6 +93,68 @@ function unpack_u64_dyn($str, &$offset = 0)
     return $v;
 }
 
+function pack_u64_dyn_b($v)
+{
+    if (is_float($v))
+    {
+        throw new Exception("Cannot encode a float as u64");
+    }
+    $out = "";
+    for ($i = 0; $i != 8; ++$i)
+    {
+        $cur = $v & 0x7f;
+        $v >>= 7;
+        if ($v != 0)
+        {
+            $out .= chr($cur | 0x80);
+            $v -= 1; // bias
+        }
+        else
+        {
+            $out .= chr($cur);
+            return $out;
+        }
+    }
+    $out .= chr($v);
+    return $out;
+}
+
+function unpack_u64_dyn_b($str, &$offset = 0)
+{
+    $len = strlen($str);
+    $v = 0;
+    $bits = 0;
+    $i = $offset;
+    $bias = 0;
+    while (true)
+    {
+        if ($i >= $len)
+        {
+            throw new Exception("Insufficient data");
+        }
+        $b = ord($str[$i]);
+        $i++;
+        if ($i - $offset == 9)
+        {
+            $v = add64($v, $b << 56);
+            break;
+        }
+        $v = add64($v, ($b & 0x7f) << $bits);
+        if (($b & 0x80) == 0)
+        {
+            break;
+        }
+        $bits += 7;
+        $bias = add64($bias, 1 << $bits);
+    }
+    $offset = $i;
+    if (cmp64($v, add64(-1, -$bias)) > 0)
+    {
+        throw new Exception("Invalid data");
+    }
+    return add64($v, $bias);
+}
+
 function pack_u64_dyn_p($v)
 {
     if (is_float($v))
@@ -163,32 +225,6 @@ function unpack_u64_dyn_p($str, &$offset = 0)
     return $v;
 }
 
-function pack_u64_dyn_b($v)
-{
-    if (is_float($v))
-    {
-        throw new Exception("Cannot encode a float as u64");
-    }
-    $out = "";
-    for ($i = 0; $i != 8; ++$i)
-    {
-        $cur = $v & 0x7f;
-        $v >>= 7;
-        if ($v != 0)
-        {
-            $out .= chr($cur | 0x80);
-            $v -= 1; // bias
-        }
-        else
-        {
-            $out .= chr($cur);
-            return $out;
-        }
-    }
-    $out .= chr($v);
-    return $out;
-}
-
 function pack_u64_dyn_bp($v)
 {
     if (is_float($v))
@@ -225,42 +261,6 @@ function pack_u64_dyn_bp($v)
     }
 
     return $out;
-}
-
-function unpack_u64_dyn_b($str, &$offset = 0)
-{
-    $len = strlen($str);
-    $v = 0;
-    $bits = 0;
-    $i = $offset;
-    $bias = 0;
-    while (true)
-    {
-        if ($i >= $len)
-        {
-            throw new Exception("Insufficient data");
-        }
-        $b = ord($str[$i]);
-        $i++;
-        if ($i - $offset == 9)
-        {
-            $v = add64($v, $b << 56);
-            break;
-        }
-        $v = add64($v, ($b & 0x7f) << $bits);
-        if (($b & 0x80) == 0)
-        {
-            break;
-        }
-        $bits += 7;
-        $bias = add64($bias, 1 << $bits);
-    }
-    $offset = $i;
-    if (cmp64($v, add64(-1, -$bias)) > 0)
-    {
-        throw new Exception("Invalid data");
-    }
-    return add64($v, $bias);
 }
 
 function unpack_u64_dyn_bp($str, &$offset = 0)
