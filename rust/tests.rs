@@ -85,8 +85,8 @@ fn test_truncated() {
 }
 
 #[test]
-fn test_wrap_mod_64() {
+fn test_overflow() {
     let enc = vec![0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe];
-    assert_eq!(unpack_u64_dyn_b(&enc), Some((0x7f, 9)));
-    assert_eq!(unpack_i64_dyn_b(&enc), Some((-64, 9)));
+    assert!(unpack_u64_dyn_b(&enc).is_none());
+    assert!(unpack_i64_dyn_b(&enc).is_none());
 }

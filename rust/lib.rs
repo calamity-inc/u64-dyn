@@ -25,10 +25,10 @@ pub fn unpack_u64_dyn(data: &[u8]) -> Option<(u64, usize)> {
         let b = data[used] as u64;
         used += 1;
         if used == 9 {
-            v = v.wrapping_add(b << bits);
+            v += b << bits;
             break;
         }
-        v = v.wrapping_add((b & 0x7f) << bits);
+        v += (b & 0x7f) << bits;
         if (b & 0x80) == 0 {
             break;
         }
@@ -44,7 +44,7 @@ pub fn pack_u64_dyn_b(mut v: u64) -> Vec<u8> {
         v >>= 7;
         if v != 0 {
             out.push(cur | 0x80);
-            v -= 1; // v2
+            v -= 1; // bias
         } else {
             out.push(cur);
             return out;
@@ -58,6 +58,7 @@ pub fn unpack_u64_dyn_b(data: &[u8]) -> Option<(u64, usize)> {
     let mut v = 0u64;
     let mut bits = 0;
     let mut used = 0;
+    let mut bias = 0u64;
     loop {
         if used >= data.len() {
             return None;
@@ -65,16 +66,20 @@ pub fn unpack_u64_dyn_b(data: &[u8]) -> Option<(u64, usize)> {
         let b = data[used] as u64;
         used += 1;
         if used == 9 {
-            v = v.wrapping_add(b << bits);
+            v += b << bits;
             break;
         }
-        v = v.wrapping_add((b & 0x7f) << bits);
+        v += (b & 0x7f) << bits;
         if (b & 0x80) == 0 {
             break;
         }
         bits += 7;
-        v = v.wrapping_add(1u64 << bits); // v2
+        bias += 1u64 << bits;
     }
+    if v > 0xffffffffffffffff - bias {
+        return None;
+    }
+    v += bias;
     Some((v, used))
 }
 
