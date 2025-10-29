@@ -282,6 +282,27 @@ bool unpack_i64_dyn_b(const uint8_t *in_data, size_t in_size, int64_t *out_v,
   return true;
 }
 
+size_t pack_i64_dyn_bp(uint8_t out[9], int64_t v) {
+  uint64_t neg = (uint64_t)(v < 0);
+  uint64_t u = v ^ (0xffffffffffffffff * neg);
+  return pack_u64_dyn_bp(out,
+                         (neg << 6) | ((u & ~0x3fULL) << 1) | (u & 0x3fULL));
+}
+bool unpack_i64_dyn_bp(const uint8_t *in_data, size_t in_size, int64_t *out_v,
+                       size_t *out_size) {
+  uint64_t u;
+  if (!unpack_u64_dyn_bp(in_data, in_size, &u, out_size)) {
+    return false;
+  }
+  const uint64_t neg = (u >> 6) & 1;         // check bit 6
+  u = ((u >> 1) & ~0x3fULL) | (u & 0x3fULL); // remove bit 6
+  int64_t v = u ^ (0xffffffffffffffff * neg);
+  if (out_v) {
+    *out_v = v;
+  }
+  return true;
+}
+
 size_t pack_u64_dyn_v2(uint8_t out[9], uint64_t v) {
   return pack_u64_dyn_b(out, v);
 }

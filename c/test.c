@@ -147,6 +147,27 @@ int main() {
       assert(out_size == pair->s);
     }
   }
+  {
+    struct IPair pairs[] = {
+        {0, "\x00", 1},
+        {0x7f, "\xBF\x00", 2},
+        {0x80, "\x80\x02", 2},
+        {1337, "\xB9\x26", 2},
+        {42069, "\xD5\x40\x08", 3},
+        {-1, "\x40", 1},
+        {INT64_MIN, "\xFF\x7F\xBF\xDF\xEF\xF7\xFB\xFD\xFE", 9},
+    };
+    for (size_t i = 0; i != COUNT(pairs); ++i) {
+      const struct IPair *pair = &pairs[i];
+      // printf("%lli\n", pair->v);
+      assert(pack_i64_dyn_bp(data, pair->v) == pair->s);
+      assert(memcmp(data, pair->d, pair->s) == 0);
+      int64_t out_v;
+      assert(unpack_i64_dyn_bp(data, pair->s, &out_v, &out_size));
+      assert(out_v == pair->v);
+      assert(out_size == pair->s);
+    }
+  }
   // Unfinished data
   {
     const uint8_t bad1[] = {0x80};
@@ -182,9 +203,10 @@ int main() {
     };
     for (size_t i = 0; i != COUNT(bads); ++i) {
       uint64_t u;
-      // int64_t v;
+      int64_t v;
       size_t used;
       assert(!unpack_u64_dyn_p(bads[i].d, bads[i].s, &u, &used));
+      assert(!unpack_i64_dyn_bp(bads[i].d, bads[i].s, &v, &used));
     }
   }
   // Invalid data
@@ -192,9 +214,11 @@ int main() {
     const uint8_t enc[] = {0xFF, 0xFF, 0xFE, 0xFE, 0xFE,
                            0xFE, 0xFE, 0xFE, 0xFE};
     uint64_t u;
+    int64_t v;
     size_t used;
     assert(!unpack_u64_dyn_b(enc, sizeof(enc), &u, &used));
     assert(!unpack_u64_dyn_bp(enc, sizeof(enc), &u, &used));
+    assert(!unpack_i64_dyn_bp(enc, sizeof(enc), &v, &used));
   }
   printf("All tests ran successfully.\n");
   return 0;
