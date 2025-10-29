@@ -147,7 +147,6 @@ foreach ($incomplete as $enc)
         unpack_i64_dyn_b($enc, $offset);
         assert(false);
     } catch (Exception $e) {}
-
 }
 
 $incomplete_p = [ "", "\x80", "\xFF\x00\x00\x00\x00\x00\x00\x00" ];

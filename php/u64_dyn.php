@@ -31,9 +31,8 @@ function cmp64($a, $b)
 function get_bias($byte_length)
 {
     $bias = 0;
-    while ($byte_length > 1)
+    while (--$byte_length)
     {
-        $byte_length -= 1;
         $bias += 1;
         $bias <<= 7;
     }
@@ -210,12 +209,7 @@ function pack_u64_dyn_bp($v)
     $first_byte_value_bits = $byte_length < 8 ? 8 - $byte_length : 0;
     $first_byte_prefix_bits = $byte_length - 1;
 
-    $bias = get_bias($byte_length);
-    if (cmp64($v, $bias) < 0)
-    {
-        throw new Exception("Value too small for biased encoding");
-    }
-    $v = add64($v, -$bias);
+    $v = add64($v, -get_bias($byte_length));
 
     $first_byte_mask = $first_byte_value_bits ? (1 << $first_byte_value_bits) - 1 : 0;
     $first_byte = ((0xff << (8 - $first_byte_prefix_bits)) & 0xff) | ($v & $first_byte_mask);
