@@ -219,6 +219,25 @@ function unpack_i64_dyn_b(str, i)
     return v, i
 end
 
+function pack_i64_dyn_bp(v)
+    local neg = (v >> 63)
+    if v < 0 then
+        v = ~v
+    end
+    return pack_u64_dyn_bp((neg << 6) | ((v & ~0x3f) << 1) | (v & 0x3f))
+end
+
+function unpack_i64_dyn_bp(str, i)
+    local v
+    v, i = unpack_u64_dyn_bp(str, i)
+    local neg = ((v >> 6) & 1) ~= 0
+    v = ((v >> 1) & ~0x3f) | (v & 0x3f)
+    if neg then
+        v = ~v
+    end
+    return v, i
+end
+
 function pack_i64_dyn(v)
     if warn then
         warn("unpack_u64_dyn_b: renamed to pack_i64_dyn_a")
