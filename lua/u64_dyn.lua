@@ -104,13 +104,12 @@ function pack_u64_dyn_bp(u)
 
     u = u - get_bias(byte_length)
 
-    local first_byte = ((0xff << (8 - first_byte_prefix_bits)) & 0xff)
-        | (u & ((1 << first_byte_value_bits) - 1))
-    local rem = u >> first_byte_value_bits
+    local first_byte = ((0xff << (8 - first_byte_prefix_bits)) & 0xff) | (u & ((1 << first_byte_value_bits) - 1))
+    u = u >> first_byte_value_bits
 
-    local out = { string.char(first_byte & 0xff) }
+    local out = { string.char(first_byte) }
     for idx = 1, byte_length - 1 do
-        out[#out + 1] = string.char((rem >> ((idx - 1) * 8)) & 0xff)
+        out[#out + 1] = string.char((u >> ((idx - 1) * 8)) & 0xff)
     end
     return table.concat(out)
 end
