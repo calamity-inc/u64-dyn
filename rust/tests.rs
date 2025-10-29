@@ -1,7 +1,7 @@
 use u64_dyn::*;
 
 #[test]
-fn test_u64() {
+fn test_u64_dyn() {
     let cases = [
         (0u64, vec![0x00]),
         (0x7f, vec![0x7f]),
@@ -18,7 +18,7 @@ fn test_u64() {
 }
 
 #[test]
-fn test_u64_b() {
+fn test_u64_dyn_b() {
     let cases = [
         (0u64, vec![0x00]),
         (0x7f, vec![0x7f]),
@@ -36,7 +36,7 @@ fn test_u64_b() {
 }
 
 #[test]
-fn test_u64_p() {
+fn test_u64_dyn_p() {
     let cases = [
         (0u64, vec![0x00]),
         (0x7f, vec![0x7f]),
@@ -53,7 +53,7 @@ fn test_u64_p() {
 }
 
 #[test]
-fn test_u64_bp() {
+fn test_u64_dyn_bp() {
     let cases = [
         (0u64, vec![0x00]),
         (0x7f, vec![0x7f]),
@@ -70,7 +70,7 @@ fn test_u64_bp() {
 }
 
 #[test]
-fn test_i64_a() {
+fn test_i64_dyn_a() {
     let cases = [
         (0i64, vec![0x00]),
         (0x7f, vec![0xbf, 0x01]),
@@ -87,7 +87,7 @@ fn test_i64_a() {
 }
 
 #[test]
-fn test_i64_b() {
+fn test_i64_dyn_b() {
     let cases = [
         (0i64, vec![0x00]),
         (0x7f, vec![0xbf, 0x00]),
@@ -100,6 +100,23 @@ fn test_i64_b() {
     for (val, enc) in cases {
         assert_eq!(pack_i64_dyn_b(val), enc);
         assert_eq!(unpack_i64_dyn_b(&enc), Some((val, enc.len())));
+    }
+}
+
+#[test]
+fn test_i64_dyn_bp() {
+    let cases = [
+        (0i64, vec![0x00]),
+        (0x7f, vec![0xbf, 0x00]),
+        (0x80, vec![0x80, 0x02]),
+        (1337, vec![0xb9, 0x26]),
+        (42069, vec![0xd5, 0x40, 0x08]),
+        (-1, vec![0x40]),
+        (i64::MIN, vec![0xff, 0x7f, 0xbf, 0xdf, 0xef, 0xf7, 0xfb, 0xfd, 0xfe]),
+    ];
+    for (val, enc) in cases {
+        assert_eq!(pack_i64_dyn_bp(val), enc);
+        assert_eq!(unpack_i64_dyn_bp(&enc), Some((val, enc.len())));
     }
 }
 
@@ -128,6 +145,7 @@ fn test_truncated_p() {
     for enc in truncated {
         assert!(unpack_u64_dyn_p(&enc).is_none());
         assert!(unpack_u64_dyn_bp(&enc).is_none());
+        assert!(unpack_i64_dyn_bp(&enc).is_none());
     }
 }
 
@@ -137,4 +155,5 @@ fn test_overflow() {
     assert!(unpack_u64_dyn_b(&enc).is_none());
     assert!(unpack_u64_dyn_bp(&enc).is_none());
     assert!(unpack_i64_dyn_b(&enc).is_none());
+    assert!(unpack_i64_dyn_bp(&enc).is_none());
 }

@@ -206,6 +206,7 @@ int main() {
       int64_t v;
       size_t used;
       assert(!unpack_u64_dyn_p(bads[i].d, bads[i].s, &u, &used));
+      assert(!unpack_u64_dyn_bp(bads[i].d, bads[i].s, &u, &used));
       assert(!unpack_i64_dyn_bp(bads[i].d, bads[i].s, &v, &used));
     }
   }
@@ -218,6 +219,7 @@ int main() {
     size_t used;
     assert(!unpack_u64_dyn_b(enc, sizeof(enc), &u, &used));
     assert(!unpack_u64_dyn_bp(enc, sizeof(enc), &u, &used));
+    assert(!unpack_i64_dyn_b(enc, sizeof(enc), &v, &used));
     assert(!unpack_i64_dyn_bp(enc, sizeof(enc), &v, &used));
   }
   printf("All tests ran successfully.\n");
