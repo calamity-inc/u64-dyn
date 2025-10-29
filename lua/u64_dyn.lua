@@ -141,8 +141,7 @@ function unpack_u64_dyn_bp(str, i)
     v = v | (first_byte & value_mask)
 
     local bias = get_bias(byte_length)
-    local limit = 0xffffffffffffffff - bias
-    assert(math.ult(v, limit) or v == limit)
+    assert(not math.ult(0xffffffffffffffff - bias, v))
 
     return v + bias, i + byte_length
 end
