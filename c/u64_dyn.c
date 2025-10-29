@@ -4,6 +4,20 @@
 #include <intrin.h>
 #endif
 
+static unsigned int count_leading_zeroes(uint32_t mask) {
+#if defined(_MSC_VER)
+  unsigned long ret;
+  if (_BitScanReverse(&ret, mask)) {
+    return 31 - ret;
+  }
+#else
+  if (mask != 0) {
+    return __builtin_clz(mask);
+  }
+#endif
+  return 32;
+}
+
 size_t pack_u64_dyn(uint8_t out[9], uint64_t v) {
   size_t i = 0;
   while (i != 8) {
@@ -167,27 +181,13 @@ size_t pack_u64_dyn_p(uint8_t out[9], uint64_t v) {
   return byte_length;
 }
 
-static unsigned int getNumLeadingZeros(uint32_t mask) {
-#if defined(_MSC_VER)
-  unsigned long ret;
-  if (_BitScanReverse(&ret, mask)) {
-    return 31 - ret;
-  }
-#else
-  if (mask != 0) {
-    return __builtin_clz(mask);
-  }
-#endif
-  return 32;
-}
-
 bool unpack_u64_dyn_p(const uint8_t *in_data, size_t in_size, uint64_t *out_v,
                       size_t *out_size) {
   if (!in_size) {
     return false;
   }
   const size_t byte_length =
-      1 + (getNumLeadingZeros((uint32_t)((uint8_t)~in_data[0])) - 24);
+      1 + (count_leading_zeroes((uint32_t)((uint8_t)~in_data[0])) - 24);
   const size_t first_byte_value_bits = (byte_length < 8) * (8 - byte_length);
   if (byte_length > in_size) {
     return false;
