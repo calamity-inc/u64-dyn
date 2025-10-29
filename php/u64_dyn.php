@@ -247,12 +247,8 @@ function pack_u64_dyn_bp($v)
 
     $v = add64($v, -get_bias($byte_length));
 
-    $first_byte_mask = $first_byte_value_bits ? (1 << $first_byte_value_bits) - 1 : 0;
-    $first_byte = ((0xff << (8 - $first_byte_prefix_bits)) & 0xff) | ($v & $first_byte_mask);
-    if ($first_byte_value_bits)
-    {
-        $v >>= $first_byte_value_bits;
-    }
+    $first_byte = ((0xff << (8 - $first_byte_prefix_bits)) & 0xff) | ($v & ((1 << $first_byte_value_bits) - 1));
+    $v >>= $first_byte_value_bits;
 
     $out = chr($first_byte);
     for ($idx = 1; $idx < $byte_length; ++$idx)
