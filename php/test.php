@@ -52,6 +52,24 @@ foreach ($tests_u64 as $val => $enc)
     assert($offset == strlen($enc));
 }
 
+$tests_u64 = [
+    0 => "\x00",
+    0x7f => "\x7F",
+    0x80 => "\x80\x00",
+    1337 => "\xB9\x12",
+    42069 => "\xD5\x1E\x03",
+    0x123456789ABCDEF => "\xFF\x6F\x8D\x8B\x79\x5F\x41\x21\x00",
+    -1 => "\xFF\x7F\xBF\xDF\xEF\xF7\xFB\xFD\xFE",
+    -9223372036854775808 => "\xFF\x80\xBF\xDF\xEF\xF7\xFB\xFD\x7E",
+];
+foreach ($tests_u64 as $val => $enc)
+{
+    assert(pack_u64_dyn_bp($val) == $enc);
+    $offset = 0;
+    assert(unpack_u64_dyn_bp($enc, $offset) == $val);
+    assert($offset == strlen($enc));
+}
+
 $tests_i64 = [
     0 => "\x00",
     0x7f => "\xBF\x01",
@@ -86,6 +104,23 @@ foreach ($tests_i64 as $val => $enc)
     assert($offset == strlen($enc));
 }
 
+$tests_i64 = [
+    0 => "\x00",
+    0x7f => "\xBF\x00",
+    0x80 => "\x80\x02",
+    1337 => "\xB9\x26",
+    42069 => "\xD5\x40\x08",
+    -1 => "\x40",
+    -9223372036854775808 => "\xFF\x7F\xBF\xDF\xEF\xF7\xFB\xFD\xFE",
+];
+foreach ($tests_i64 as $val => $enc)
+{
+    assert(pack_i64_dyn_bp($val) == $enc);
+    $offset = 0;
+    assert(unpack_i64_dyn_bp($enc, $offset) == $val);
+    assert($offset == strlen($enc));
+}
+
 $incomplete = [ "", "\x80", "\x80\x80\x80\x80\x80\x80\x80\x80" ];
 foreach ($incomplete as $enc)
 {
@@ -112,6 +147,7 @@ foreach ($incomplete as $enc)
         unpack_i64_dyn_b($enc, $offset);
         assert(false);
     } catch (Exception $e) {}
+
 }
 
 $incomplete_p = [ "", "\x80", "\xFF\x00\x00\x00\x00\x00\x00\x00" ];
@@ -120,6 +156,18 @@ foreach ($incomplete_p as $enc)
     try {
         $offset = 0;
         unpack_u64_dyn_p($enc, $offset);
+        assert(false);
+    } catch (Exception $e) {}
+
+    try {
+        $offset = 0;
+        unpack_u64_dyn_bp($enc, $offset);
+        assert(false);
+    } catch (Exception $e) {}
+
+    try {
+        $offset = 0;
+        unpack_i64_dyn_bp($enc, $offset);
         assert(false);
     } catch (Exception $e) {}
 }
@@ -132,6 +180,16 @@ try {
 } catch (Exception $e) {}
 try {
     $offset = 0;
+    unpack_u64_dyn_bp($enc, $offset);
+    assert(false);
+} catch (Exception $e) {}
+try {
+    $offset = 0;
     unpack_i64_dyn_b($enc, $offset);
+    assert(false);
+} catch (Exception $e) {}
+try {
+    $offset = 0;
+    unpack_i64_dyn_bp($enc, $offset);
     assert(false);
 } catch (Exception $e) {}
