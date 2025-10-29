@@ -202,8 +202,7 @@ function unpack_u64_dyn_b(str, i)
         v = v + (b << 56)
     end
 ::apply_bias::
-    local lim = 0xffffffffffffffff - bias
-    assert(math.ult(v, lim) or v == lim)
+    assert(not math.ult(0xffffffffffffffff - bias, v))
     return v + bias, i
 end
 
