@@ -28,11 +28,6 @@ function cmp64($a, $b)
     return $a_lo <=> $b_lo;
 }
 
-function sub64($a, $b)
-{
-    return add64($a, add64(~$b, 1));
-}
-
 function get_bias($byte_length)
 {
     $bias = 0;
@@ -220,7 +215,7 @@ function pack_u64_dyn_bp($v)
     {
         throw new Exception("Value too small for biased encoding");
     }
-    $v = sub64($v, $bias);
+    $v = add64($v, -$bias);
 
     $first_byte_mask = $first_byte_value_bits ? (1 << $first_byte_value_bits) - 1 : 0;
     $first_byte = ((0xff << (8 - $first_byte_prefix_bits)) & 0xff) | ($v & $first_byte_mask);
@@ -309,7 +304,7 @@ function unpack_u64_dyn_bp($str, &$offset = 0)
     $v |= $first_byte & ((1 << $first_byte_value_bits) - 1);
 
     $bias = get_bias($byte_length);
-    if (cmp64($v, sub64(-1, $bias)) > 0)
+    if (cmp64($v, add64(-1, -$bias)) > 0)
     {
         throw new Exception("Invalid data");
     }
