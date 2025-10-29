@@ -11,6 +11,23 @@ function add64($a, $b)
     return $a;
 }
 
+function cmp64($a, $b)
+{
+    $a_hi = ($a >> 32) & 0xffffffff;
+    $b_hi = ($b >> 32) & 0xffffffff;
+    if ($a_hi > $b_hi)
+    {
+        return 1;
+    }
+    if ($a_hi < $b_hi)
+    {
+        return -1;
+    }
+    $a_lo = $a & 0xffffffff;
+    $b_lo = $b & 0xffffffff;
+    return $a_lo <=> $b_lo;
+}
+
 function pack_u64_dyn($v)
 {
     if (is_float($v))
@@ -149,7 +166,7 @@ function pack_u64_dyn_b($v)
         if ($v != 0)
         {
             $out .= chr($cur | 0x80);
-            $v -= 1; // v2
+            $v -= 1; // bias
         }
         else
         {
@@ -167,28 +184,34 @@ function unpack_u64_dyn_b($str, &$offset = 0)
     $v = 0;
     $bits = 0;
     $i = $offset;
-    while ($i < $len && $i - $offset < 8)
+    $bias = 0;
+    while (true)
     {
+        if ($i >= $len)
+        {
+            throw new Exception("Insufficient data");
+        }
         $b = ord($str[$i]);
         $i++;
+        if ($i - $offset == 9)
+        {
+            $v = add64($v, $b << 56);
+            break;
+        }
         $v = add64($v, ($b & 0x7f) << $bits);
         if (($b & 0x80) == 0)
         {
-            $offset = $i;
-            return $v;
+            break;
         }
         $bits += 7;
-        $v = add64($v, 1 << $bits); // v2
+        $bias = add64($bias, 1 << $bits);
     }
-    if ($i >= $len)
-    {
-        throw new Exception("Insufficient data");
-    }
-    $b = ord($str[$i]);
-    $v = add64($v, $b << 56);
-    $i++;
     $offset = $i;
-    return $v;
+    if (cmp64($v, add64(-1, -$bias)) > 0)
+    {
+        throw new Exception("Invalid data");
+    }
+    return add64($v, $bias);
 }
 
 function pack_i64_dyn_a($v)

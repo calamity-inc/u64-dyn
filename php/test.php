@@ -125,9 +125,13 @@ foreach ($incomplete_p as $enc)
 }
 
 $enc = "\xFF\xFF\xFE\xFE\xFE\xFE\xFE\xFE\xFE";
-$offset = 0;
-assert(unpack_u64_dyn_b($enc, $offset) == 0x7F);
-assert($offset == strlen($enc));
-$offset = 0;
-assert(unpack_i64_dyn_b($enc, $offset) == -64);
-assert($offset == strlen($enc));
+try {
+    $offset = 0;
+    unpack_u64_dyn_b($enc, $offset);
+    assert(false);
+} catch (Exception $e) {}
+try {
+    $offset = 0;
+    unpack_i64_dyn_b($enc, $offset);
+    assert(false);
+} catch (Exception $e) {}
