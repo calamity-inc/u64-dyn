@@ -1,5 +1,14 @@
 "use strict";
 
+function get_bias(byte_length) {
+  let bias = 0n;
+  while (--byte_length) {
+    bias += 1n;
+    bias <<= 7n;
+  }
+  return bias;
+}
+
 function pack_u64_dyn(v) {
   if (typeof v !== "bigint") v = BigInt(v);
   const out = new Uint8Array(9);
@@ -127,6 +136,57 @@ function unpack_u64_dyn_p(buf, offset = 0) {
   return [v, offset + byte_length];
 }
 
+function pack_u64_dyn_bp(v) {
+  if (typeof v !== "bigint") v = BigInt(v);
+  const byte_length =
+    1 +
+    (v >= 128n) +
+    (v >= 16512n) +
+    (v >= 2113664n) +
+    (v >= 270549120n) +
+    (v >= 34630287488n) +
+    (v >= 4432676798592n) +
+    (v >= 567382630219904n) +
+    (v >= 72624976668147840n);
+  const first_byte_value_bits = (byte_length < 8) * (8 - byte_length);
+  const first_byte_prefix_bits = byte_length - 1;
+
+  v -= get_bias(byte_length);
+
+  const out = new Uint8Array(byte_length);
+  out[0] =
+    (0xff << (8 - first_byte_prefix_bits)) |
+    (Number(v & 0xffn) & ((1 << first_byte_value_bits) - 1));
+  v >>= BigInt(first_byte_value_bits);
+  for (let i = 1; i != byte_length; ++i) {
+    out[i] = Number((v >> BigInt((i - 1) * 8)) & 0xffn);
+  }
+  return out;
+}
+
+function unpack_u64_dyn_bp(buf, offset = 0) {
+  if (offset >= buf.length) {
+    throw new RangeError("Insufficient data");
+  }
+  const byte_length = 1 + (Math.clz32(~buf[offset] & 0xff) - 24);
+  const first_byte_value_bits = (byte_length < 8) * (8 - byte_length);
+  if (offset + byte_length > buf.length) {
+    throw new RangeError("Insufficient data");
+  }
+  let v = 0n;
+  for (let i = 1; i != byte_length; ++i) {
+    v |= BigInt(buf[offset + i]) << BigInt((i - 1) * 8);
+  }
+  v <<= BigInt(first_byte_value_bits);
+  v |= BigInt(buf[offset] & ((1 << first_byte_value_bits) - 1));
+
+  const bias = get_bias(byte_length);
+  if (v > 0xffffffffffffffffn - bias) {
+    throw new RangeError("Invalid data");
+  }
+  return [v + bias, offset + byte_length];
+}
+
 function pack_i64_dyn_a(v) {
   if (typeof v !== "bigint") v = BigInt(v);
   const neg = v < 0n ? 1n : 0n;
@@ -209,6 +269,8 @@ module.exports = {
   unpack_u64_dyn_b,
   pack_u64_dyn_p,
   unpack_u64_dyn_p,
+  pack_u64_dyn_bp,
+  unpack_u64_dyn_bp,
   pack_i64_dyn_a,
   unpack_i64_dyn_a,
   pack_i64_dyn_b,

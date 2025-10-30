@@ -6,6 +6,8 @@ const {
   unpack_u64_dyn_b,
   pack_u64_dyn_p,
   unpack_u64_dyn_p,
+  pack_u64_dyn_bp,
+  unpack_u64_dyn_bp,
   pack_i64_dyn_a,
   unpack_i64_dyn_a,
   pack_i64_dyn_b,
@@ -29,26 +31,6 @@ for (const [val, enc] of casesU64) {
     [value, off],
     [val, enc.length],
     `unpack_u64_dyn mismatch for ${val}`,
-  );
-}
-
-const casesI64 = new Map([
-  [0n, [0x00]],
-  [0x7fn, [0xbf, 0x01]],
-  [0x80n, [0x80, 0x02]],
-  [1337n, [0xb9, 0x14]],
-  [42069n, [0x95, 0x91, 0x05]],
-  [-1n, [0x41]],
-  [-9223372036854775808n, [0x40]],
-]);
-for (const [val, enc] of casesI64) {
-  const packed = Array.from(pack_i64_dyn_a(BigInt.asIntN(64, val)));
-  assert.deepStrictEqual(packed, enc, `pack_i64_dyn_a mismatch for ${val}`);
-  const [value, off] = unpack_i64_dyn_a(Uint8Array.from(enc));
-  assert.deepStrictEqual(
-    [value, off],
-    [BigInt.asIntN(64, val), enc.length],
-    `unpack_i64_dyn_a mismatch for ${val}`,
   );
 }
 
@@ -90,6 +72,46 @@ for (const [val, enc] of casesU64p) {
     [value, off],
     [val, enc.length],
     `unpack_u64_dyn_p mismatch for ${val}`,
+  );
+}
+
+const casesU64bp = new Map([
+  [0n, [0x00]],
+  [0x7fn, [0x7f]],
+  [0x80n, [0x80, 0x00]],
+  [1337n, [0xb9, 0x12]],
+  [42069n, [0xd5, 0x1e, 0x03]],
+  [0xffffffffffffffffn, [0xff, 0x7f, 0xbf, 0xdf, 0xef, 0xf7, 0xfb, 0xfd, 0xfe]],
+  [0x8000000000000000n, [0xff, 0x80, 0xbf, 0xdf, 0xef, 0xf7, 0xfb, 0xfd, 0x7e]],
+]);
+for (const [val, enc] of casesU64bp) {
+  const packed = Array.from(pack_u64_dyn_bp(val));
+  assert.deepStrictEqual(packed, enc, `pack_u64_dyn_bp mismatch for ${val}`);
+  const [value, off] = unpack_u64_dyn_bp(Uint8Array.from(enc));
+  assert.deepStrictEqual(
+    [value, off],
+    [val, enc.length],
+    `unpack_u64_dyn_bp mismatch for ${val}`,
+  );
+}
+
+const casesI64a = new Map([
+  [0n, [0x00]],
+  [0x7fn, [0xbf, 0x01]],
+  [0x80n, [0x80, 0x02]],
+  [1337n, [0xb9, 0x14]],
+  [42069n, [0x95, 0x91, 0x05]],
+  [-1n, [0x41]],
+  [-9223372036854775808n, [0x40]],
+]);
+for (const [val, enc] of casesI64a) {
+  const packed = Array.from(pack_i64_dyn_a(BigInt.asIntN(64, val)));
+  assert.deepStrictEqual(packed, enc, `pack_i64_dyn_a mismatch for ${val}`);
+  const [value, off] = unpack_i64_dyn_a(Uint8Array.from(enc));
+  assert.deepStrictEqual(
+    [value, off],
+    [BigInt.asIntN(64, val), enc.length],
+    `unpack_i64_dyn_a mismatch for ${val}`,
   );
 }
 
@@ -162,6 +184,10 @@ for (const enc of truncatedCasesP) {
     () => unpack_u64_dyn_p(buf),
     "unpack_u64_dyn_p should throw on insufficient data",
   );
+  expectThrow(
+    () => unpack_u64_dyn_bp(buf),
+    "unpack_u64_dyn_bp should throw on insufficient data",
+  );
 }
 
 {
@@ -171,6 +197,10 @@ for (const enc of truncatedCasesP) {
   expectThrow(
     () => unpack_u64_dyn_b(enc),
     "unpack_u64_dyn_b should throw on invalid data",
+  );
+  expectThrow(
+    () => unpack_u64_dyn_bp(enc),
+    "unpack_u64_dyn_bp should throw on invalid data",
   );
   expectThrow(
     () => unpack_i64_dyn_b(enc),
