@@ -1,6 +1,6 @@
 {
   "name": "u64-dyn",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Variable-length 64-bit integer codings that take at most 9 bytes.",
   "repository": {
     "type": "git",
