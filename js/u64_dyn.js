@@ -84,6 +84,49 @@ function unpack_u64_dyn_b(buf, offset = 0) {
   return [v, offset + used];
 }
 
+function pack_u64_dyn_p(v) {
+  if (typeof v !== "bigint") v = BigInt(v);
+  const byte_length =
+    1 +
+    (v >= 128n) +
+    (v >= 16384n) +
+    (v >= 2097152n) +
+    (v >= 268435456n) +
+    (v >= 34359738368n) +
+    (v >= 4398046511104n) +
+    (v >= 562949953421312n) +
+    (v >= 72057594037927936n);
+  const first_byte_value_bits = (byte_length < 8) * (8 - byte_length);
+  const first_byte_prefix_bits = byte_length - 1;
+  const out = new Uint8Array(byte_length);
+  out[0] =
+    (0xff << (8 - first_byte_prefix_bits)) |
+    (Number(v & 0xffn) & ((1 << first_byte_value_bits) - 1));
+  v >>= BigInt(first_byte_value_bits);
+  for (let i = 1; i != byte_length; ++i) {
+    out[i] = Number((v >> BigInt((i - 1) * 8)) & 0xffn);
+  }
+  return out;
+}
+
+function unpack_u64_dyn_p(buf, offset = 0) {
+  if (offset >= buf.length) {
+    throw new RangeError("Insufficient data");
+  }
+  const byte_length = 1 + (Math.clz32(~buf[offset] & 0xff) - 24);
+  const first_byte_value_bits = (byte_length < 8) * (8 - byte_length);
+  if (offset + byte_length > buf.length) {
+    throw new RangeError("Insufficient data");
+  }
+  let v = 0n;
+  for (let i = 1; i != byte_length; ++i) {
+    v |= BigInt(buf[offset + i]) << BigInt((i - 1) * 8);
+  }
+  v <<= BigInt(first_byte_value_bits);
+  v |= BigInt(buf[offset] & ((1 << first_byte_value_bits) - 1));
+  return [v, offset + byte_length];
+}
+
 function pack_i64_dyn_a(v) {
   if (typeof v !== "bigint") v = BigInt(v);
   const neg = v < 0n ? 1n : 0n;
@@ -164,6 +207,8 @@ module.exports = {
   unpack_u64_dyn,
   pack_u64_dyn_b,
   unpack_u64_dyn_b,
+  pack_u64_dyn_p,
+  unpack_u64_dyn_p,
   pack_i64_dyn_a,
   unpack_i64_dyn_a,
   pack_i64_dyn_b,
