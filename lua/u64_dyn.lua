@@ -240,7 +240,7 @@ end
 
 function pack_i64_dyn(v)
     if warn then
-        warn("unpack_u64_dyn_b: renamed to pack_i64_dyn_a")
+        warn("pack_i64_dyn: renamed to pack_i64_dyn_a")
     end
     return pack_i64_dyn_a(v)
 end
