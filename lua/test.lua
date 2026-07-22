@@ -45,19 +45,6 @@ end
 
 for val, enc in pairs({
     [0] = "\x00",
-    [0x7f] = "\xBF\x01",
-    [0x80] = "\x80\x02",
-    [1337] = "\xB9\x14",
-    [42069] = "\x95\x91\x05",
-    [-1] = "\x41",
-    [-9223372036854775808] = "\x40",
-}) do
-    assert(pack_i64_dyn_a(val) == enc)
-    assert(unpack_i64_dyn_a(enc) == val)
-end
-
-for val, enc in pairs({
-    [0] = "\x00",
     [0x7f] = "\x7F",
     [0x80] = "\x80\x00",
     [1337] = "\xB9\x09",
@@ -68,6 +55,19 @@ for val, enc in pairs({
 }) do
     assert(pack_u64_dyn_b(val) == enc)
     assert(unpack_u64_dyn_b(enc) == val)
+end
+
+for val, enc in pairs({
+    [0] = "\x00",
+    [0x7f] = "\xBF\x01",
+    [0x80] = "\x80\x02",
+    [1337] = "\xB9\x14",
+    [42069] = "\x95\x91\x05",
+    [-1] = "\x41",
+    [-9223372036854775808] = "\x40",
+}) do
+    assert(pack_i64_dyn_a(val) == enc)
+    assert(unpack_i64_dyn_a(enc) == val)
 end
 
 for val, enc in pairs({

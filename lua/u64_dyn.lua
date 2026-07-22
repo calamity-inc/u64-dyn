@@ -141,25 +141,6 @@ function unpack_u64_dyn_bp(str, i)
     return v + bias, i + byte_length
 end
 
-function pack_i64_dyn_a(v)
-    local neg = (v >> 63)
-    if v < 0 then
-        v = (~v + 1) & ~(1 << 63)
-    end
-    return pack_u64_dyn((neg << 6) | ((v & ~0x3f) << 1) | (v & 0x3f))
-end
-
-function unpack_i64_dyn_a(str, i)
-    local v
-    v, i = unpack_u64_dyn(str, i)
-    local neg = ((v >> 6) & 1) ~= 0
-    v = ((v >> 1) & ~0x3f) | (v & 0x3f)
-    if neg then
-        v = ~(v - 1) | (1 << 63)
-    end
-    return v, i
-end
-
 function pack_u64_dyn_b(v)
     local out = {}
     for _ = 1, 8 do
@@ -198,6 +179,25 @@ function unpack_u64_dyn_b(str, i)
 ::apply_bias::
     assert(not math.ult(0xffffffffffffffff - bias, v))
     return v + bias, i
+end
+
+function pack_i64_dyn_a(v)
+    local neg = (v >> 63)
+    if v < 0 then
+        v = (~v + 1) & ~(1 << 63)
+    end
+    return pack_u64_dyn((neg << 6) | ((v & ~0x3f) << 1) | (v & 0x3f))
+end
+
+function unpack_i64_dyn_a(str, i)
+    local v
+    v, i = unpack_u64_dyn(str, i)
+    local neg = ((v >> 6) & 1) ~= 0
+    v = ((v >> 1) & ~0x3f) | (v & 0x3f)
+    if neg then
+        v = ~(v - 1) | (1 << 63)
+    end
+    return v, i
 end
 
 function pack_i64_dyn_b(v)
