@@ -85,6 +85,19 @@ end
 
 for val, enc in pairs({
     [0] = "\x00",
+    [0x7f] = "\xBF\x02",
+    [0x80] = "\x80\x04",
+    [1337] = "\xB9\x28",
+    [42069] = "\xD5\x44\x0A",
+    [-1] = "\x40",
+    [-9223372036854775808] = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+}) do
+    assert(pack_i64_dyn_p(val) == enc)
+    assert(unpack_i64_dyn_p(enc) == val)
+end
+
+for val, enc in pairs({
+    [0] = "\x00",
     [0x7f] = "\xBF\x00",
     [0x80] = "\x80\x02",
     [1337] = "\xB9\x26",

@@ -8,6 +8,7 @@ Variable-length 64-bit integer codings that take at most 9 bytes.
 - Signed
   - [i64_dyn_a](#i64_dyn_a) *(fka. `i64_dyn`)*
   - [i64_dyn_b](#i64_dyn_b) *(fka. `i64_dyn_v2`)*
+  - [i64_dyn_p](#i64_dyn_p)
   - [i64_dyn_bp](#i64_dyn_bp)
 
 ### Guide
@@ -72,7 +73,7 @@ Value | Encoded As
 ------|-----------
 `0x7f` | `7f`
 `0x80` | `80 02`
-`0x4000` | `C0 80 02`
+`0x4000` | `c0 80 02`
 `0xffffffffffffffff` | `ff ff ff ff ff ff ff ff ff`
 
 ### u64_dyn_bp
@@ -134,6 +135,17 @@ Value | Encoded As
 `0x2000` | `80 7f`
 `-1` | `40`
 `-9223372036854775808` | `ff fe fe fe fe fe fe fe fe`
+
+### i64_dyn_p
+
+The i64 value is converted to u64 just like in [i64_dyn_b](#i64_dyn_b). However, in this case the u64 is coded with [u64_dyn_p](#u64_dyn_p).
+
+Value | Encoded As
+------|-----------
+`42` | `2a`
+`0x2000` | `c0 00 02`
+`-1` | `40`
+`-9223372036854775808` | `ff ff ff ff ff ff ff ff ff`
 
 ### i64_dyn_bp
 
