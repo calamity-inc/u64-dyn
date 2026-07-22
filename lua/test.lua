@@ -119,6 +119,8 @@ end
 for _, enc in pairs({ "", "\x80", "\xFF\x00\x00\x00\x00\x00\x00\x00" }) do
     assert(not pcall(unpack_u64_dyn_p, enc))
     assert(not pcall(unpack_u64_dyn_bp, enc))
+    assert(not pcall(unpack_i64_dyn_p, enc))
+    assert(not pcall(unpack_i64_dyn_bp, enc))
 end
 
 do
