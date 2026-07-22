@@ -229,24 +229,14 @@ function unpack_i64_dyn_b(buf, offset = 0) {
   let u = u64;
   const neg = (u >> 6n) & 1n;
   u = ((u >> 1n) & ~0x3fn) | (u & 0x3fn);
-  let v;
-  if (neg) {
-    v = ~u;
-  } else {
-    v = u;
-  }
+  const v = neg ? ~u : u;
   return [v, idx];
 }
 
 function pack_i64_dyn_p(v) {
   if (typeof v !== "bigint") v = BigInt(v);
   const neg = v < 0n ? 1n : 0n;
-  let u;
-  if (neg) {
-    u = ~v;
-  } else {
-    u = v;
-  }
+  const u = neg ? ~v : v;
   const packed = (neg << 6n) | ((u & ~0x3fn) << 1n) | (u & 0x3fn);
   return pack_u64_dyn_p(packed);
 }
@@ -256,24 +246,14 @@ function unpack_i64_dyn_p(buf, offset = 0) {
   let u = u64;
   const neg = (u >> 6n) & 1n;
   u = ((u >> 1n) & ~0x3fn) | (u & 0x3fn);
-  let v;
-  if (neg) {
-    v = ~u;
-  } else {
-    v = u;
-  }
+  const v = neg ? ~u : u;
   return [v, idx];
 }
 
 function pack_i64_dyn_bp(v) {
   if (typeof v !== "bigint") v = BigInt(v);
   const neg = v < 0n ? 1n : 0n;
-  let u;
-  if (neg) {
-    u = ~v;
-  } else {
-    u = v;
-  }
+  const u = neg ? ~v : v;
   const packed = (neg << 6n) | ((u & ~0x3fn) << 1n) | (u & 0x3fn);
   return pack_u64_dyn_bp(packed);
 }
@@ -283,12 +263,7 @@ function unpack_i64_dyn_bp(buf, offset = 0) {
   let u = u64;
   const neg = (u >> 6n) & 1n;
   u = ((u >> 1n) & ~0x3fn) | (u & 0x3fn);
-  let v;
-  if (neg) {
-    v = ~u;
-  } else {
-    v = u;
-  }
+  const v = neg ? ~u : u;
   return [v, idx];
 }
 

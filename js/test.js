@@ -142,7 +142,6 @@ for (const [val, enc] of casesI64b) {
   );
 }
 
-
 const casesI64p = new Map([
   [0n, [0x00]],
   [0x7fn, [0xbf, 0x02]],

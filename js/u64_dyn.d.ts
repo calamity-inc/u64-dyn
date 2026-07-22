@@ -39,6 +39,7 @@ export function unpack_i64_dyn_p(
   data: Uint8Array,
   offset?: number,
 ): [bigint, number];
+
 export function pack_i64_dyn_bp(value: bigint | number): Uint8Array;
 export function unpack_i64_dyn_bp(
   data: Uint8Array,
