@@ -12,6 +12,8 @@ const {
   unpack_i64_dyn_a,
   pack_i64_dyn_b,
   unpack_i64_dyn_b,
+  pack_i64_dyn_p,
+  unpack_i64_dyn_p,
   pack_i64_dyn_bp,
   unpack_i64_dyn_bp,
 } = require("./u64_dyn");
@@ -140,6 +142,29 @@ for (const [val, enc] of casesI64b) {
   );
 }
 
+const casesI64p = new Map([
+  [0n, [0x00]],
+  [0x7fn, [0xbf, 0x02]],
+  [0x80n, [0x80, 0x04]],
+  [1337n, [0xb9, 0x28]],
+  [42069n, [0xd5, 0x44, 0x0a]],
+  [-1n, [0x40]],
+  [
+    -9223372036854775808n,
+    [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
+  ],
+]);
+for (const [val, enc] of casesI64p) {
+  const packed = Array.from(pack_i64_dyn_p(val));
+  assert.deepStrictEqual(packed, enc, `pack_i64_dyn_p mismatch for ${val}`);
+  const [value, off] = unpack_i64_dyn_p(Uint8Array.from(enc));
+  assert.deepStrictEqual(
+    [value, off],
+    [val, enc.length],
+    `unpack_i64_dyn_p mismatch for ${val}`,
+  );
+}
+
 const casesI64bp = new Map([
   [0n, [0x00]],
   [0x7fn, [0xbf, 0x00]],
@@ -212,6 +237,10 @@ for (const enc of truncatedCasesP) {
   expectThrow(
     () => unpack_u64_dyn_bp(buf),
     "unpack_u64_dyn_bp should throw on insufficient data",
+  );
+  expectThrow(
+    () => unpack_i64_dyn_p(buf),
+    "unpack_i64_dyn_p should throw on insufficient data",
   );
   expectThrow(
     () => unpack_i64_dyn_bp(buf),

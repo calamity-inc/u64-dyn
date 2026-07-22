@@ -363,6 +363,34 @@ function unpack_i64_dyn_b($str, &$offset = 0)
     return $v;
 }
 
+function pack_i64_dyn_p($v)
+{
+    if (is_float($v))
+    {
+        throw new Exception("Cannot encode a float as i64");
+    }
+    $neg = ($v >> 63) & 1;
+    if ($v < 0)
+    {
+        $v = ~$v;
+    }
+    return pack_u64_dyn_p(($neg << 6) | (($v & ~0x3f) << 1) | ($v & 0x3f));
+}
+
+function unpack_i64_dyn_p($str, &$offset = 0)
+{
+    $v = unpack_u64_dyn_p($str, $offset);
+    $neg = (($v >> 6) & 1) != 0;
+    $upper = $v & ~0x7f;
+    $upper = ($upper >> 1) & ~(-1 << 63);
+    $v = $upper | ($v & 0x3f);
+    if ($neg)
+    {
+        $v = ~$v;
+    }
+    return $v;
+}
+
 function pack_i64_dyn_bp($v)
 {
     if (is_float($v))

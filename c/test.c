@@ -129,6 +129,27 @@ int main() {
   {
     struct IPair pairs[] = {
         {0, "\x00", 1},
+        {0x7f, "\xBF\x02", 2},
+        {0x80, "\x80\x04", 2},
+        {1337, "\xB9\x28", 2},
+        {42069, "\xD5\x44\x0A", 3},
+        {-1, "\x40", 1},
+        {INT64_MIN, "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF", 9},
+    };
+    for (size_t i = 0; i != COUNT(pairs); ++i) {
+      const struct IPair *pair = &pairs[i];
+      assert(pack_i64_dyn_p(data, pair->v) == pair->s);
+      assert(memcmp(data, pair->d, pair->s) == 0);
+      int64_t out_v;
+      assert(unpack_i64_dyn_p(data, pair->s, &out_v, &out_size));
+      assert(out_v == pair->v);
+      assert(out_size == pair->s);
+    }
+  }
+
+  {
+    struct IPair pairs[] = {
+        {0, "\x00", 1},
         {0x7f, "\xBF\x00", 2},
         {0x80, "\x80\x01", 2},
         {1337, "\xB9\x13", 2},
@@ -207,6 +228,7 @@ int main() {
       size_t used;
       assert(!unpack_u64_dyn_p(bads[i].d, bads[i].s, &u, &used));
       assert(!unpack_u64_dyn_bp(bads[i].d, bads[i].s, &u, &used));
+      assert(!unpack_i64_dyn_p(bads[i].d, bads[i].s, &v, &used));
       assert(!unpack_i64_dyn_bp(bads[i].d, bads[i].s, &v, &used));
     }
   }

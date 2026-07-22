@@ -238,6 +238,27 @@ pub fn unpack_i64_dyn_b(data: &[u8]) -> Option<(i64, usize)> {
     Some((v, used))
 }
 
+pub fn pack_i64_dyn_p(v: i64) -> Vec<u8> {
+    let mut u = v as u64;
+    let neg = (v < 0) as u64;
+    if neg != 0 {
+        u = !u;
+    }
+    let packed = (neg << 6) | ((u & !0x3f) << 1) | (u & 0x3f);
+    pack_u64_dyn_p(packed)
+}
+
+pub fn unpack_i64_dyn_p(data: &[u8]) -> Option<(i64, usize)> {
+    let (mut u, used) = unpack_u64_dyn_p(data)?;
+    let neg = (u >> 6) & 1;
+    u = ((u >> 1) & !0x3f) | (u & 0x3f);
+    let mut v = u as i64;
+    if neg != 0 {
+        v = !v;
+    }
+    Some((v, used))
+}
+
 pub fn pack_i64_dyn_bp(v: i64) -> Vec<u8> {
     let mut u = v as u64;
     let neg = (v < 0) as u64;
