@@ -103,6 +103,24 @@ fn test_i64_dyn_b() {
     }
 }
 
+
+#[test]
+fn test_i64_dyn_p() {
+    let cases = [
+        (0i64, vec![0x00]),
+        (0x7f, vec![0xbf, 0x02]),
+        (0x80, vec![0x80, 0x04]),
+        (1337, vec![0xb9, 0x28]),
+        (42069, vec![0xd5, 0x44, 0x0a]),
+        (-1, vec![0x40]),
+        (i64::MIN, vec![0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]),
+    ];
+    for (val, enc) in cases {
+        assert_eq!(pack_i64_dyn_p(val), enc);
+        assert_eq!(unpack_i64_dyn_p(&enc), Some((val, enc.len())));
+    }
+}
+
 #[test]
 fn test_i64_dyn_bp() {
     let cases = [
@@ -145,6 +163,7 @@ fn test_truncated_p() {
     for enc in truncated {
         assert!(unpack_u64_dyn_p(&enc).is_none());
         assert!(unpack_u64_dyn_bp(&enc).is_none());
+        assert!(unpack_i64_dyn_p(&enc).is_none());
         assert!(unpack_i64_dyn_bp(&enc).is_none());
     }
 }
